@@ -1,0 +1,95 @@
+<Project Sdk="Belp.SDK.PackOnly/0.4.0" TreatAsLocalProperty="_HideSourceFilePath;_HideSourceFileContent">
+
+  <!-- Build Configuration -->
+  <PropertyGroup>
+    <DisableDefaultBuild>false</DisableDefaultBuild>
+    <TargetFramework>net7.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="**\*$(DefaultLanguageSourceExtension)" Exclude="$(DefaultItemExcludes);$(DefaultExcludesInProjectFolder)" />
+    <PackageAsset Include="@(Compile)" BuildAction="Compile" />
+  </ItemGroup>
+
+
+
+  <!-- Compiler Configuration -->
+  <PropertyGroup>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+
+
+  <!-- Package Information -->
+  <PropertyGroup>
+    <Description>An internal package used by Belp.SDK.Test.MSBuild.XUnit.</Description>
+    <DevelopmentDependency>true</DevelopmentDependency>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/Arthri/Belp.Build.Test.MSBuild.XUnit/</PackageProjectUrl>
+    <PackageTags>msbuild</PackageTags>
+    <Product>Belp</Product>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <Title>Belp.SDK.Test.MSBuild.XUnit Sources</Title>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <CopyrightOwner Include="Arthri" Years="2023" />
+  </ItemGroup>
+
+
+
+  <!-- Dependencies -->
+  <Import Project="$(MSBuildThisFileDirectory)Assets\build\Dependencies.props" />
+
+  <PropertyGroup>
+    <UseXUnitVisualStudioRunner>false</UseXUnitVisualStudioRunner>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Remove="coverlet.collector;Microsoft.NET.Test.Sdk;xunit" />
+    <PackageReference Include="xunit.abstractions" Version="2.0.3" />
+  </ItemGroup>
+
+
+
+  <!-- Development Dependencies -->
+  <ItemGroup>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+
+
+  <!-- Generate HideSourceFiles -->
+  <PropertyGroup>
+    <BeforePack>$(BeforePack);_GenerateHideSourceFiles</BeforePack>
+  </PropertyGroup>
+
+  <Target Name="_GenerateHideSourceFiles">
+    <PropertyGroup>
+      <_HideSourceFilePath>$(IntermediateOutputPath)HideSourceFiles.props</_HideSourceFilePath>
+      <_HideSourceFileContent>
+<![CDATA[<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <ItemGroup>
+    <!-- Hide package source files from project tree -->
+    <Compile Update="@%28Compile)">
+      <Visible Condition="'%%28Compile.NuGetPackageId)' == '$(PackageId)'">false</Visible>
+      <Link>$(PackageId)\%%28Filename)%%28Extension)</Link>
+    </Compile>
+  </ItemGroup>
+
+</Project>]]>
+      </_HideSourceFileContent>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <None Include="$(_HideSourceFilePath)" Pack="true" PackagePath="\build\" />
+    </ItemGroup>
+
+    <WriteLinesToFile File="$(_HideSourceFilePath)" Lines="$(_HideSourceFileContent)" Overwrite="true" WriteOnlyWhenDifferent="true" />
+  </Target>
+
+</Project>
