@@ -1,4 +1,9 @@
-﻿using FluentAssertions;
+﻿#nullable enable
+#if !BELP_BUILD_TEST_MSBUILD_XUNIT_ENABLE_WARNINGS
+#pragma warning disable
+#endif
+
+using FluentAssertions;
 using Microsoft.Build.Construction;
 using Microsoft.Build.Evaluation.Context;
 using Microsoft.Build.Execution;

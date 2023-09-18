@@ -1,4 +1,9 @@
-﻿using Microsoft.Build.Framework;
+﻿#nullable enable
+#if !BELP_BUILD_TEST_MSBUILD_XUNIT_ENABLE_WARNINGS
+#pragma warning disable
+#endif
+
+using Microsoft.Build.Framework;
 using System;
 
 namespace Belp.SDK.Test.MSBuild.XUnit;

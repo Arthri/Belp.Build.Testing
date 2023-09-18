@@ -15,6 +15,7 @@
 
   <!-- Compiler Configuration -->
   <PropertyGroup>
+    <DefineConstants>$(DefineConstants);BELP_BUILD_TEST_MSBUILD_XUNIT_ENABLE_WARNINGS</DefineConstants>
     <Nullable>enable</Nullable>
   </PropertyGroup>
 

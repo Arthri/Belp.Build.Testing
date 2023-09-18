@@ -1,4 +1,9 @@
-﻿namespace Belp.SDK.Test.MSBuild.XUnit;
+﻿#nullable enable
+#if !BELP_BUILD_TEST_MSBUILD_XUNIT_ENABLE_WARNINGS
+#pragma warning disable
+#endif
+
+namespace Belp.SDK.Test.MSBuild.XUnit;
 
 internal enum DiagnosticSeverity
 {
