@@ -5,7 +5,7 @@
 
 using Microsoft.Build.Framework;
 
-namespace Belp.SDK.Test.MSBuild.XUnit;
+namespace Belp.Build.Test.MSBuild.XUnit;
 
 internal record struct TextSpan(TextPosition Start, TextPosition End)
 {

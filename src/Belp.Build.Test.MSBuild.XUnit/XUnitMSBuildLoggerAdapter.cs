@@ -9,7 +9,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Xunit.Abstractions;
 
-namespace Belp.SDK.Test.MSBuild.XUnit;
+namespace Belp.Build.Test.MSBuild.XUnit;
 
 /// <summary>
 /// Provides an adapter for <see cref="ITestOutputHelper"/> to <see cref="ILogger"/>.

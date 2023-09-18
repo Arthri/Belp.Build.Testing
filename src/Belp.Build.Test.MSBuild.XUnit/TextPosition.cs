@@ -3,6 +3,6 @@
 #pragma warning disable
 #endif
 
-namespace Belp.SDK.Test.MSBuild.XUnit;
+namespace Belp.Build.Test.MSBuild.XUnit;
 
 internal record struct TextPosition(int Line, int Column);
