@@ -4,10 +4,7 @@
 #endif
 
 using FluentAssertions;
-using Microsoft.Build.Construction;
-using Microsoft.Build.Evaluation.Context;
 using Microsoft.Build.Execution;
-using Microsoft.Build.FileSystem;
 using Microsoft.Build.Framework;
 using System;
 using System.Collections;
