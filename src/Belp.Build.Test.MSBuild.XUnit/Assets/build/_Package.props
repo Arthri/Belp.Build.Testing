@@ -2,4 +2,6 @@
 
   <Import Project="$(MSBuildThisFileDirectory)Dependencies.props" />
 
+  <Import Project="$(MSBuildThisFileDirectory)HideSourceFiles.props" />
+
 </Project>
