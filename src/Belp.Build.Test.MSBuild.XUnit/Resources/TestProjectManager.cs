@@ -10,7 +10,7 @@ using System.Runtime.CompilerServices;
 
 namespace Belp.Build.Test.MSBuild.XUnit.Resources;
 
-internal static partial class ProjectManager
+internal static partial class TestProjectManager
 {
     public static partial class Paths
     {
@@ -22,7 +22,7 @@ internal static partial class ProjectManager
             Path.GetTempPath(),
             "23bf55c5-7020-43d0-a313-9695fe6c313b",
             "Belp.SDK.Test.MSBuild.XUnit",
-            typeof(ProjectManager).Assembly.GetName().Name ?? throw new InvalidProgramException("Assembly name is null.")
+            typeof(TestProjectManager).Assembly.GetName().Name ?? throw new InvalidProgramException("Assembly name is null.")
         );
 
         public static string ProjectCache { get; } = Path.Combine(TempRoot, "projects");
