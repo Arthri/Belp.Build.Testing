@@ -28,7 +28,7 @@ internal static partial class ProjectManager
         public static string ProjectCache { get; } = Path.Combine(TempRoot, "projects");
     }
 
-    public static void ClearProjectCache()
+    public static void ClearCache()
     {
         Directory.Delete(Paths.ProjectCache, true);
         _ = Directory.CreateDirectory(Paths.ProjectCache);
