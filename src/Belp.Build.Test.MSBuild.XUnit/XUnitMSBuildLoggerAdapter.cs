@@ -1,9 +1,4 @@
-﻿#nullable enable
-#if !BELP_BUILD_TEST_MSBUILD_XUNIT_ENABLE_WARNINGS
-#pragma warning disable
-#endif
-
-using Microsoft.Build.Framework;
+﻿using Microsoft.Build.Framework;
 using System;
 using System.Collections;
 using System.Collections.Generic;

@@ -1,8 +1,3 @@
-﻿#nullable enable
-#if !BELP_BUILD_TEST_MSBUILD_XUNIT_ENABLE_WARNINGS
-#pragma warning disable
-#endif
-
 using System;
 using System.IO;
 using System.Runtime.CompilerServices;
