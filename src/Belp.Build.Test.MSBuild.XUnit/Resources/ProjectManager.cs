@@ -44,19 +44,9 @@ internal static partial class ProjectManager
         string sourceDirectory = Path.Combine(Paths.ProjectsRoot, projectName);
         string destinationDirectory = Path.Combine(Paths.ProjectCache, projectName, callerMemberName);
 
-        var queue = new Queue<(string, string)>();
-        queue.Enqueue((sourceDirectory, destinationDirectory));
-        while (queue.Count > 0 && queue.Dequeue() is var (originDir, targetDir))
+        foreach (string file in Directory.GetFiles(sourceDirectory, "*", SearchOption.AllDirectories))
         {
-            foreach (string file in Directory.GetFiles(originDir))
-            {
-                File.Copy(file, Path.Combine(targetDir, Path.GetFileName(file)));
-            }
-
-            foreach (string dir in Directory.GetDirectories(originDir))
-            {
-                queue.Enqueue((dir, Path.Combine(targetDir, Path.GetDirectoryName(dir) ?? "")));
-            }
+            File.Copy(file, Path.Combine(destinationDirectory, Path.GetRelativePath(sourceDirectory, file)));
         }
 
         return destinationDirectory;
