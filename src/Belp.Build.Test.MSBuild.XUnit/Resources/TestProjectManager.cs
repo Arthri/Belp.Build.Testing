@@ -1,48 +1,85 @@
-using System;
-using System.IO;
-using System.Runtime.CompilerServices;
+﻿using System.ComponentModel;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace Belp.Build.Test.MSBuild.XUnit.Resources;
 
-internal static partial class TestProjectManager
+/// <summary>
+/// Manages the test projects and test caches.
+/// </summary>
+public static class TestProjectManager
 {
-    public static partial class Paths
+    /// <summary>
+    /// Provides common paths used by <see cref="TestProjectManager"/>.
+    /// </summary>
+    public static class Paths
     {
-#if !BELP_BUILD_TEST_MSBUILD_XUNIT_RESOURCES_PROJECTS_ROOT_SPECIFIED
-        public static string ProjectsRoot => throw new NotImplementedException();
-#endif
+        /// <summary>
+        /// Gets the directory which contains the test projects.
+        /// </summary>
+        public static string TestProjectsRoot { get; private set; } = null!;
 
+        /// <summary>
+        /// Gets the temporary directory where all caches are located.
+        /// </summary>
         public static string TempRoot { get; } = Path.Combine(
             Path.GetTempPath(),
             "23bf55c5-7020-43d0-a313-9695fe6c313b",
             "Belp.SDK.Test.MSBuild.XUnit",
-            typeof(TestProjectManager).Assembly.GetName().Name ?? throw new InvalidProgramException("Assembly name is null.")
+            Convert.ToHexString(SHA256.HashData(Encoding.Unicode.GetBytes(TestProjectsRoot)))
         );
 
+        /// <summary>
+        /// Gets the cache directory for cloned projects.
+        /// </summary>
         public static string ProjectCache { get; } = Path.Combine(TempRoot, "projects");
+
+        /// <summary>
+        /// Sets <see cref="TestProjectsRoot"/>. Must not be used more than once.
+        /// </summary>
+        /// <param name="path">The new path of <see cref="TestProjectsRoot"/>.</param>
+        /// <exception cref="InvalidOperationException"><see cref="SetTestProjectsRoot(string)"/> was invoked more than once.</exception>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public static void SetTestProjectsRoot(string path)
+        {
+            TestProjectsRoot = TestProjectsRoot is null
+                ? throw new InvalidOperationException($"{nameof(SetTestProjectsRoot)} must be invoked only once.")
+                : path
+                ;
+        }
     }
 
+    private static readonly Dictionary<string, TestProject> InternalTestProjects;
+
+    /// <summary>
+    /// Gets a dictionary of test projects.
+    /// </summary>
+    public static IReadOnlyDictionary<string, TestProject> TestProjects => InternalTestProjects.AsReadOnly();
+
+    static TestProjectManager()
+    {
+        if (Paths.TestProjectsRoot is null)
+        {
+            throw new InvalidProgramException($"{nameof(Paths)}.{nameof(Paths.TestProjectsRoot)} has not been set.");
+        }
+
+        string[] testProjectDirectories = Directory.GetDirectories(Paths.TestProjectsRoot);
+        var testProjects = new Dictionary<string, TestProject>(testProjectDirectories.Length);
+        for (int i = 0; i < testProjectDirectories.Length; i++)
+        {
+            string testProjectDirectory = testProjectDirectories[i];
+            testProjects[Path.GetFileName(testProjectDirectory)] = new TestProject(testProjectDirectory);
+        }
+
+        InternalTestProjects = testProjects;
+    }
+
+    /// <summary>
+    /// Deletes <see cref="Paths.TempRoot"/>.
+    /// </summary>
     public static void ClearCache()
     {
-        Directory.Delete(Paths.ProjectCache, true);
-        _ = Directory.CreateDirectory(Paths.ProjectCache);
-    }
-
-    public static string CloneProject(string projectName, [CallerMemberName] string? callerMemberName = null)
-    {
-        if (callerMemberName is null)
-        {
-            throw new ArgumentNullException(nameof(callerMemberName));
-        }
-
-        string sourceDirectory = Path.Combine(Paths.ProjectsRoot, projectName);
-        string destinationDirectory = Path.Combine(Paths.ProjectCache, projectName, callerMemberName);
-
-        foreach (string file in Directory.GetFiles(sourceDirectory, "*", SearchOption.AllDirectories))
-        {
-            File.Copy(file, Path.Combine(destinationDirectory, Path.GetRelativePath(sourceDirectory, file)));
-        }
-
-        return destinationDirectory;
+        Directory.Delete(Paths.TempRoot, true);
+        _ = Directory.CreateDirectory(Paths.TempRoot);
     }
 }
