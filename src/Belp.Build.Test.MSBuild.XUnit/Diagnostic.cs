@@ -1,10 +1,19 @@
-﻿using Microsoft.Build.Framework;
-using System;
+﻿namespace Belp.Build.Test.MSBuild.XUnit;
 
-namespace Belp.Build.Test.MSBuild.XUnit;
-
-internal record struct Diagnostic(Diagnostic.SeverityLevel Severity, string Code, string? Message, string File, TextSpan Span, string Project)
+/// <summary>
+/// Represents an MSBuild diagnostic.
+/// </summary>
+/// <param name="Severity">Gets the diagnostic's severity.</param>
+/// <param name="Code">Gets the diagnostic's code.</param>
+/// <param name="Message">Gets the diagnostic message.</param>
+/// <param name="File">Gets the file the diagnostic was raised in.</param>
+/// <param name="Span">Gets the location inside <paramref name="File"/> the diagnostic was raised in.</param>
+/// <param name="Project">Gets the project the diagnostic was raised in.</param>
+public record struct Diagnostic(Diagnostic.SeverityLevel Severity, string Code, string? Message, string File, TextSpan Span, string Project)
 {
+    /// <summary>
+    /// Represents a diagnostic's severity.
+    /// </summary>
     public enum SeverityLevel
     {
         Critical = 1,
@@ -15,34 +24,7 @@ internal record struct Diagnostic(Diagnostic.SeverityLevel Severity, string Code
         Diagnostic = 6,
     }
 
-    public Diagnostic(BuildMessageEventArgs e)
-        : this(
-            e.Importance switch
-            {
-                MessageImportance.High => SeverityLevel.Informational,
-                MessageImportance.Normal => SeverityLevel.Verbose,
-                MessageImportance.Low => SeverityLevel.Diagnostic,
-                _ => throw new NotSupportedException(),
-            },
-            e.Code,
-            e.Message,
-            e.File,
-            new TextSpan(e),
-            e.ProjectFile
-        )
-    {
-    }
-
-    public Diagnostic(BuildWarningEventArgs e)
-        : this(SeverityLevel.Warning, e.Code, e.Message, e.File, new TextSpan(e), e.ProjectFile)
-    {
-    }
-
-    public Diagnostic(BuildErrorEventArgs e)
-        : this(SeverityLevel.Error, e.Code, e.Message, e.File, new TextSpan(e), e.ProjectFile)
-    {
-    }
-
+    /// <inheritdoc />
     public override readonly string ToString()
     {
         string levelAbbr = Severity switch

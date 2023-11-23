@@ -1,7 +1,5 @@
 ﻿using Microsoft.Build.Framework;
-using System;
 using System.Collections;
-using System.Collections.Generic;
 using Xunit.Abstractions;
 
 namespace Belp.Build.Test.MSBuild.XUnit;
@@ -9,7 +7,7 @@ namespace Belp.Build.Test.MSBuild.XUnit;
 /// <summary>
 /// Provides an adapter for <see cref="ITestOutputHelper"/> to <see cref="ILogger"/>.
 /// </summary>
-internal partial class XUnitMSBuildLoggerAdapter : ITestOutputHelper, ILogger
+public class XUnitMSBuildLoggerAdapter : ITestOutputHelper, ILogger
 {
     private sealed class DiagnosticAggregateList : IReadOnlyList<Diagnostic>
     {
@@ -81,12 +79,29 @@ internal partial class XUnitMSBuildLoggerAdapter : ITestOutputHelper, ILogger
 
 
     private readonly List<Diagnostic> _errors = new();
+
+    /// <summary>
+    /// Gets a list of errors catched by the logger.
+    /// </summary>
+    public IReadOnlyList<Diagnostic> Errors => _errors.AsReadOnly();
+
     private readonly List<Diagnostic> _warnings = new();
+
+    /// <summary>
+    /// Gets a list of warnings catched by the logger.
+    /// </summary>
+    public IReadOnlyList<Diagnostic> Warnings => _warnings.AsReadOnly();
+
     private readonly List<Diagnostic> _messages = new();
 
-    public IReadOnlyList<Diagnostic> Errors => _errors.AsReadOnly();
-    public IReadOnlyList<Diagnostic> Warnings => _warnings.AsReadOnly();
+    /// <summary>
+    /// Gets a list of messages catched by the logger.
+    /// </summary>
     public IReadOnlyList<Diagnostic> Messages => _messages.AsReadOnly();
+
+    /// <summary>
+    /// Gets a list of diagnostics(errors, warnings, and messages) catched by the logger.
+    /// </summary>
     public IReadOnlyList<Diagnostic> Diagnostics => new DiagnosticAggregateList(this);
 
 
@@ -113,7 +128,7 @@ internal partial class XUnitMSBuildLoggerAdapter : ITestOutputHelper, ILogger
         Shutdown();
     }
 
-    /// <inheritdoc />
+    /// <inheritdoc cref="ILogger.Initialize(IEventSource)" />
     public virtual void Initialize(IEventSource eventSource)
     {
         _eventSource = eventSource;
@@ -128,6 +143,11 @@ internal partial class XUnitMSBuildLoggerAdapter : ITestOutputHelper, ILogger
         eventSource.MessageRaised += OnMessageRaised;
     }
 
+    /// <summary>
+    /// Runs when any status update is raised.
+    /// </summary>
+    /// <param name="sender">The status update's sender.</param>
+    /// <param name="e">The raised status update.</param>
     protected virtual void OnBuildStatus(object sender, BuildStatusEventArgs e)
     {
         if (e.Message is not null)
@@ -136,9 +156,24 @@ internal partial class XUnitMSBuildLoggerAdapter : ITestOutputHelper, ILogger
         }
     }
 
+    /// <summary>
+    /// Runs when an error is raised.
+    /// </summary>
+    /// <param name="sender">The error's sender.</param>
+    /// <param name="e">The raised error.</param>
     protected virtual void OnErrorRaised(object sender, BuildErrorEventArgs e)
     {
-        var diagnostic = new Diagnostic(e);
+        var diagnostic = new Diagnostic(
+            Diagnostic.SeverityLevel.Error,
+            e.Code,
+            e.Message,
+            e.File,
+            new TextSpan(
+                new TextSpan.Position(e.LineNumber, e.ColumnNumber),
+                new TextSpan.Position(e.EndLineNumber, e.EndColumnNumber)
+            ),
+            e.ProjectFile
+        );
         _errors.Add(diagnostic);
 
         if (OnDiagnosticRaised(sender, diagnostic))
@@ -152,9 +187,24 @@ internal partial class XUnitMSBuildLoggerAdapter : ITestOutputHelper, ILogger
         }
     }
 
+    /// <summary>
+    /// Runs when a warning is raised.
+    /// </summary>
+    /// <param name="sender">The warning's sender.</param>
+    /// <param name="e">The raised warning.</param>
     protected virtual void OnWarningRaised(object sender, BuildWarningEventArgs e)
     {
-        var diagnostic = new Diagnostic(e);
+        var diagnostic = new Diagnostic(
+            Diagnostic.SeverityLevel.Warning,
+            e.Code,
+            e.Message,
+            e.File,
+            new TextSpan(
+                new TextSpan.Position(e.LineNumber, e.ColumnNumber),
+                new TextSpan.Position(e.EndLineNumber, e.EndColumnNumber)
+            ),
+            e.ProjectFile
+        );
         _warnings.Add(diagnostic);
 
         if (OnDiagnosticRaised(sender, diagnostic))
@@ -168,9 +218,31 @@ internal partial class XUnitMSBuildLoggerAdapter : ITestOutputHelper, ILogger
         }
     }
 
+    /// <summary>
+    /// Runs when a message is raised.
+    /// </summary>
+    /// <param name="sender">The message's sender.</param>
+    /// <param name="e">The raised message.</param>
+    /// <exception cref="NotSupportedException">The message has an unsupported importance level.</exception>
     protected virtual void OnMessageRaised(object sender, BuildMessageEventArgs e)
     {
-        var diagnostic = new Diagnostic(e);
+        var diagnostic = new Diagnostic(
+            e.Importance switch
+            {
+                MessageImportance.High => Diagnostic.SeverityLevel.Informational,
+                MessageImportance.Normal => Diagnostic.SeverityLevel.Verbose,
+                MessageImportance.Low => Diagnostic.SeverityLevel.Diagnostic,
+                var importance => throw new NotSupportedException($"Unsupported importance level {importance}"),
+            },
+            e.Code,
+            e.Message,
+            e.File,
+            new TextSpan(
+                new TextSpan.Position(e.LineNumber, e.ColumnNumber),
+                new TextSpan.Position(e.EndLineNumber, e.EndColumnNumber)
+            ),
+            e.ProjectFile
+        );
         if (e.Importance <= MessageImportance.Normal)
         {
             _messages.Add(diagnostic);
@@ -195,12 +267,18 @@ internal partial class XUnitMSBuildLoggerAdapter : ITestOutputHelper, ILogger
         }
     }
 
+    /// <summary>
+    /// Runs when a diagnostic of any severity is raised.
+    /// </summary>
+    /// <param name="sender">The diagnostic's sender.</param>
+    /// <param name="diagnostic">The raised diagnostic.</param>
+    /// <returns><see langword="true"/> if the processing of the diagnostic should terminate; otherwise, <see langword="false"/>.</returns>
     protected virtual bool OnDiagnosticRaised(object sender, Diagnostic diagnostic)
     {
         return false;
     }
 
-    /// <inheritdoc />
+    /// <inheritdoc cref="ILogger.Shutdown" />
     public virtual void Shutdown()
     {
         _eventSource.BuildFinished -= OnBuildStatus;
