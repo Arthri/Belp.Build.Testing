@@ -1,0 +1,23 @@
+<Project ToolsVersion="15.0" TreatAsLocalProperty="_TestPackagesDirectory" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <PropertyGroup>
+    <_TestPackagesDirectory>$(TargetDir)packages</_TestPackagesDirectory>
+  </PropertyGroup>
+
+  <Target Name="PackProjectsUnderTest" AfterTargets="Build">
+    <MSBuild BuildInParallel="true" Projects="@(BuildProjectUnderTest)" Targets="Pack;_GetOutputItemsFromPack">
+      <Output TaskParameter="TargetOutputs" ItemName="_BuildProjectPackOutputs" />
+    </MSBuild>
+
+    <ItemGroup>
+      <_BuildProjectPackages Include="@(_BuildProjectPackOutputs)" Condition="'%(Extension)' == '.nupkg'" />
+    </ItemGroup>
+
+    <MakeDir Directories="$(_TestPackagesDirectory)" />
+
+    <Error Code="BLP4010" Text="%24(_TestPackagesDirectory) is empty." Condition="'$(_TestPackagesDirectory)' == ''" />
+    <RemoveDir Directories="$(_TestPackagesDirectory)" />
+    <Copy SourceFiles="@(_BuildProjectPackages)" DestinationFolder="$(_TestPackagesDirectory)" />
+  </Target>
+
+</Project>
