@@ -1,4 +1,4 @@
-using System.Security.Cryptography;
+﻿using System.Security.Cryptography;
 using System.Text;
 
 namespace Belp.Build.Test.MSBuild.XUnit.Resources;
@@ -66,5 +66,14 @@ public static class TestProjectManager
     {
         Directory.Delete(Paths.TempRoot, true);
         _ = Directory.CreateDirectory(Paths.TempRoot);
+    }
+
+    /// <summary>
+    /// Deletes and recreates <see cref="Paths.ProjectCache"/>.
+    /// </summary>
+    public static void ClearProjectsCache()
+    {
+        Directory.Delete(Paths.ProjectCache, true);
+        _ = Directory.CreateDirectory(Paths.ProjectCache);
     }
 }
