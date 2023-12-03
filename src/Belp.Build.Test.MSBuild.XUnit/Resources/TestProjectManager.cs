@@ -1,4 +1,3 @@
-﻿using System.ComponentModel;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -17,7 +16,7 @@ public static class TestProjectManager
         /// <summary>
         /// Gets the directory which contains the test projects.
         /// </summary>
-        public static string TestProjectsRoot { get; private set; } = null!;
+        public static string TestProjectsRoot => AppContext.BaseDirectory;
 
         /// <summary>
         /// Gets the temporary directory where all caches are located.
@@ -33,20 +32,6 @@ public static class TestProjectManager
         /// Gets the cache directory for cloned projects.
         /// </summary>
         public static string ProjectCache { get; } = Path.Combine(TempRoot, "projects");
-
-        /// <summary>
-        /// Sets <see cref="TestProjectsRoot"/>. Must not be used more than once.
-        /// </summary>
-        /// <param name="path">The new path of <see cref="TestProjectsRoot"/>.</param>
-        /// <exception cref="InvalidOperationException"><see cref="SetTestProjectsRoot(string)"/> was invoked more than once.</exception>
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public static void SetTestProjectsRoot(string path)
-        {
-            TestProjectsRoot = TestProjectsRoot is null
-                ? throw new InvalidOperationException($"{nameof(SetTestProjectsRoot)} must be invoked only once.")
-                : path
-                ;
-        }
     }
 
     private static readonly Dictionary<string, TestProject> InternalTestProjects;
