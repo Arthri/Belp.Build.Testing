@@ -60,7 +60,7 @@ public static class TestProjectManager
     }
 
     /// <summary>
-    /// Deletes <see cref="Paths.TempRoot"/>.
+    /// Deletes and recreates <see cref="Paths.TempRoot"/>.
     /// </summary>
     public static void ClearCache()
     {
