@@ -1,4 +1,4 @@
-using System.Reflection;
+﻿using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 
@@ -41,7 +41,6 @@ public static class TestProjectManager
         public static string TempRoot { get; } = Path.Combine(
             Path.GetTempPath(),
             "23bf55c5-7020-43d0-a313-9695fe6c313b",
-            "Belp.SDK.Test.MSBuild.XUnit",
             HexHash(MemoryMarshal.AsBytes(TestProjectsRoot.AsSpan()))
         );
 
