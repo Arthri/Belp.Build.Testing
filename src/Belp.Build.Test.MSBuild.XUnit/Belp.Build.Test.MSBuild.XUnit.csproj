@@ -54,4 +54,36 @@
     </PackageReference>
   </ItemGroup>
 
+
+
+  <!-- Hide packed source files -->
+  <PropertyGroup>
+    <BeforePack>$(BeforePack);_GenerateHideSourceFiles</BeforePack>
+  </PropertyGroup>
+
+  <Target Name="_GenerateHideSourceFiles">
+    <PropertyGroup>
+      <_HideSourceFilePath>$(IntermediateOutputPath)HideSourceFiles.props</_HideSourceFilePath>
+      <_HideSourceFileContent>
+<![CDATA[<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <ItemGroup>
+    <!-- Hide package source files from project tree -->
+    <Compile Update="@%28Compile)">
+      <Visible Condition="'%%28Compile.NuGetPackageId)' == '$(PackageId)'">false</Visible>
+      <Link>$(PackageId)\%%28Filename)%%28Extension)</Link>
+    </Compile>
+  </ItemGroup>
+
+</Project>]]>
+      </_HideSourceFileContent>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <None Include="$(_HideSourceFilePath)" Pack="true" PackagePath="\build\" />
+    </ItemGroup>
+
+    <WriteLinesToFile File="$(_HideSourceFilePath)" Lines="$(_HideSourceFileContent)" Overwrite="true" WriteOnlyWhenDifferent="true" />
+  </Target>
+
 </Project>
