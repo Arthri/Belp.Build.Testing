@@ -1,5 +1,6 @@
-﻿using System.Security.Cryptography;
-using System.Text;
+using System.Reflection;
+using System.Runtime.InteropServices;
+using System.Security.Cryptography;
 
 namespace Belp.Build.Test.MSBuild.XUnit.Resources;
 
@@ -13,6 +14,22 @@ public static class TestProjectManager
     /// </summary>
     public static class Paths
     {
+        private static string HexHash(ReadOnlySpan<byte> source)
+        {
+            const int HASH_SIZE = 256;
+            Span<byte> buffer = stackalloc byte[HASH_SIZE / 8];
+            _ = SHA256.HashData(source, buffer);
+            Span<char> charBuffer = stackalloc char[HASH_SIZE / 8 * 2];
+            for (int i = 0; i < buffer.Length; i++)
+            {
+                if (!buffer[i].TryFormat(charBuffer.Slice(i * 2, 2), out _, "X2"))
+                {
+                    throw new Exception("Unable to format byte into hexadecimal notation.");
+                }
+            }
+            return charBuffer.ToString();
+        }
+
         /// <summary>
         /// Gets the directory which contains the test projects.
         /// </summary>
@@ -25,7 +42,7 @@ public static class TestProjectManager
             Path.GetTempPath(),
             "23bf55c5-7020-43d0-a313-9695fe6c313b",
             "Belp.SDK.Test.MSBuild.XUnit",
-            Convert.ToHexString(SHA256.HashData(Encoding.Unicode.GetBytes(TestProjectsRoot)))
+            HexHash(MemoryMarshal.AsBytes(TestProjectsRoot.AsSpan()))
         );
 
         /// <summary>
