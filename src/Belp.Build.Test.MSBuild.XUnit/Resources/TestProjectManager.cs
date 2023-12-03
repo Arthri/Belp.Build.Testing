@@ -41,6 +41,7 @@ public static class TestProjectManager
         public static string TempRoot { get; } = Path.Combine(
             Path.GetTempPath(),
             "23bf55c5-7020-43d0-a313-9695fe6c313b",
+            "Belp.SDK.Test.MSBuild.XUnit",
             HexHash(MemoryMarshal.AsBytes(TestProjectsRoot.AsSpan()))
         );
 
@@ -80,8 +81,14 @@ public static class TestProjectManager
     /// </summary>
     public static void ClearCache()
     {
-        Directory.Delete(Paths.TempRoot, true);
-        _ = Directory.CreateDirectory(Paths.TempRoot);
+        try
+        {
+            Directory.Delete(Paths.TempRoot, true);
+        }
+        catch (DirectoryNotFoundException)
+        {
+        }
+        CreateTempRoot();
     }
 
     /// <summary>
@@ -89,7 +96,13 @@ public static class TestProjectManager
     /// </summary>
     public static void ClearProjectsCache()
     {
-        Directory.Delete(Paths.ProjectCache, true);
+        try
+        {
+            Directory.Delete(Paths.ProjectCache, true);
+        }
+        catch (DirectoryNotFoundException)
+        {
+        }
         _ = Directory.CreateDirectory(Paths.ProjectCache);
     }
 }
