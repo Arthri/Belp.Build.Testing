@@ -49,6 +49,16 @@ public static class TestProjectManager
         /// Gets the cache directory for cloned projects.
         /// </summary>
         public static string ProjectCache { get; } = Path.Combine(TempRoot, "projects");
+
+        /// <summary>
+        /// Gets the temporary packages source.
+        /// </summary>
+        public static string PackagesDirectory { get; } = Path.Combine(TempRoot, "packages");
+
+        /// <summary>
+        /// Gets the cache directory for restored packages.
+        /// </summary>
+        public static string PackagesCache { get; } = Path.Combine(TempRoot, "packages_cache");
     }
 
     private static readonly Dictionary<string, TestProject> InternalTestProjects;
@@ -74,6 +84,26 @@ public static class TestProjectManager
         }
 
         InternalTestProjects = testProjects;
+    }
+
+    private static void CreateTempRoot()
+    {
+        _ = Directory.CreateDirectory(Paths.TempRoot);
+        File.WriteAllText(
+            Path.Combine(Paths.TempRoot, "nuget.config"),
+            $"""
+            <?xml version="1.0" encoding="utf-8"?>
+            <configuration>
+              <config>
+                <add key="globalPackagesFolder" value="{Paths.PackagesCache}" />
+              </config>
+              <packageSources>
+                <clear />
+                <add key="Belp.SDK.Test.MSBuild.XUnit Packages" value="{Paths.PackagesDirectory}" />
+              </packageSources>
+            </configuration>
+            """
+        );
     }
 
     /// <summary>
