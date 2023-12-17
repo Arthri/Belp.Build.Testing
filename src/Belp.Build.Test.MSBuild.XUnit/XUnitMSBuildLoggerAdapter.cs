@@ -78,21 +78,21 @@ public class XUnitMSBuildLoggerAdapter : ITestOutputHelper, ILogger
 
 
 
-    private readonly List<Diagnostic> _errors = new();
+    private readonly List<Diagnostic> _errors = [];
 
     /// <summary>
     /// Gets a list of errors catched by the logger.
     /// </summary>
     public IReadOnlyList<Diagnostic> Errors => _errors.AsReadOnly();
 
-    private readonly List<Diagnostic> _warnings = new();
+    private readonly List<Diagnostic> _warnings = [];
 
     /// <summary>
     /// Gets a list of warnings catched by the logger.
     /// </summary>
     public IReadOnlyList<Diagnostic> Warnings => _warnings.AsReadOnly();
 
-    private readonly List<Diagnostic> _messages = new();
+    private readonly List<Diagnostic> _messages = [];
 
     /// <summary>
     /// Gets a list of messages catched by the logger.
