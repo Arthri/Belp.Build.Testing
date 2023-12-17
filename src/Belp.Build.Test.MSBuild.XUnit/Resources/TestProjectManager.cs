@@ -1,4 +1,4 @@
-﻿using System.Reflection;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 
@@ -19,15 +19,7 @@ public static class TestProjectManager
             const int HASH_SIZE = 256;
             Span<byte> buffer = stackalloc byte[HASH_SIZE / 8];
             _ = SHA256.HashData(source, buffer);
-            Span<char> charBuffer = stackalloc char[HASH_SIZE / 8 * 2];
-            for (int i = 0; i < buffer.Length; i++)
-            {
-                if (!buffer[i].TryFormat(charBuffer.Slice(i * 2, 2), out _, "X2"))
-                {
-                    throw new Exception("Unable to format byte into hexadecimal notation.");
-                }
-            }
-            return charBuffer.ToString();
+            return Convert.ToHexString(buffer);
         }
 
         /// <summary>
