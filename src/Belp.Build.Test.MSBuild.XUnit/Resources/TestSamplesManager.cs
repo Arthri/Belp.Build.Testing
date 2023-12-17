@@ -1,5 +1,4 @@
-using System.Reflection;
-using System.Runtime.InteropServices;
+﻿using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 
 namespace Belp.Build.Test.MSBuild.XUnit.Resources;
@@ -7,10 +6,10 @@ namespace Belp.Build.Test.MSBuild.XUnit.Resources;
 /// <summary>
 /// Manages the test projects and test caches.
 /// </summary>
-public static class TestProjectManager
+public static class TestSamplesManager
 {
     /// <summary>
-    /// Provides common paths used by <see cref="TestProjectManager"/>.
+    /// Provides common paths used by <see cref="TestSamplesManager"/>.
     /// </summary>
     public static class Paths
     {
@@ -25,7 +24,7 @@ public static class TestProjectManager
         /// <summary>
         /// Gets the directory which contains the test projects.
         /// </summary>
-        public static string TestProjectsRoot => AppContext.BaseDirectory;
+        public static string TestSamplesRoot => AppContext.BaseDirectory;
 
         /// <summary>
         /// Gets the temporary directory where all caches are located.
@@ -33,7 +32,7 @@ public static class TestProjectManager
         public static string TempRoot { get; } = Path.Combine(
             Path.GetTempPath(),
             "23bf55c5-7020-43d0-a313-9695fe6c313b",
-            HexHash(MemoryMarshal.AsBytes(TestProjectsRoot.AsSpan()))
+            HexHash(MemoryMarshal.AsBytes(TestSamplesRoot.AsSpan()))
         );
 
         /// <summary>
@@ -52,29 +51,24 @@ public static class TestProjectManager
         public static string PackagesCache { get; } = Path.Combine(TempRoot, "packages_cache");
     }
 
-    private static readonly Dictionary<string, TestProject> InternalTestProjects;
+    private static readonly Dictionary<string, TestSample> InternalTestSamples;
 
     /// <summary>
     /// Gets a dictionary of test projects.
     /// </summary>
-    public static IReadOnlyDictionary<string, TestProject> TestProjects => InternalTestProjects.AsReadOnly();
+    public static IReadOnlyDictionary<string, TestSample> TestSamples => InternalTestSamples.AsReadOnly();
 
-    static TestProjectManager()
+    static TestSamplesManager()
     {
-        if (Paths.TestProjectsRoot is null)
+        string[] testSamplesDirectories = Directory.GetDirectories(Paths.TestSamplesRoot);
+        var testSamples = new Dictionary<string, TestSample>(testSamplesDirectories.Length);
+        for (int i = 0; i < testSamplesDirectories.Length; i++)
         {
-            throw new InvalidProgramException($"{nameof(Paths)}.{nameof(Paths.TestProjectsRoot)} has not been set.");
+            string testSampleDirectory = testSamplesDirectories[i];
+            testSamples[Path.GetFileName(testSampleDirectory)] = TestSample.FromDirectory(testSampleDirectory);
         }
 
-        string[] testProjectDirectories = Directory.GetDirectories(Paths.TestProjectsRoot);
-        var testProjects = new Dictionary<string, TestProject>(testProjectDirectories.Length);
-        for (int i = 0; i < testProjectDirectories.Length; i++)
-        {
-            string testProjectDirectory = testProjectDirectories[i];
-            testProjects[Path.GetFileName(testProjectDirectory)] = new TestProject(testProjectDirectory);
-        }
-
-        InternalTestProjects = testProjects;
+        InternalTestSamples = testSamples;
     }
 
     private static void CreateTempRoot()

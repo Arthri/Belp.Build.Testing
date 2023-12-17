@@ -1,6 +1,6 @@
 ﻿using Microsoft.Build.Execution;
 using Xunit.Abstractions;
-using static Belp.Build.Test.MSBuild.XUnit.Resources.TestProjectManager;
+using static Belp.Build.Test.MSBuild.XUnit.Resources.TestSamplesManager;
 
 namespace Belp.Build.Test.MSBuild.XUnit.Resources;
 
@@ -43,7 +43,7 @@ public readonly struct TestProjectInstance
 
         Project = project;
         InstanceName = instanceName;
-        CacheLocation = Path.Combine(Paths.ProjectCache, instanceName, instanceName);
+        CacheLocation = Path.Combine(Paths.ProjectCache, instanceName);
         Logger = logger;
     }
 
@@ -61,7 +61,7 @@ public readonly struct TestProjectInstance
                 CacheLocation,
                 new Dictionary<string, string>(),
                 null,
-                new[] { "Restore", "Build" },
+                ["Restore", "Build"],
                 null
             )
         );
@@ -90,9 +90,9 @@ public readonly struct TestProjectInstance
             buildParameters ?? new BuildParametersWithDefaults(new XUnitMSBuildLoggerAdapter(Logger)),
             new BuildRequestData(
                 CacheLocation,
-                globalProperties ?? new Dictionary<string, string>(),
+                globalProperties ?? [],
                 toolsVersion,
-                targetsToBuild ?? new[] { "Restore", "Build" },
+                targetsToBuild ?? ["Restore", "Build"],
                 hostServices,
                 buildRequestDataFlags
             )

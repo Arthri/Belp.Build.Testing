@@ -1,4 +1,5 @@
 ﻿using Belp.Build.Test.MSBuild.XUnit.Resources;
+using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using Xunit.Abstractions;
 
@@ -9,57 +10,73 @@ namespace Belp.Build.Test.MSBuild.XUnit;
 /// </summary>
 public class MSBuildTest
 {
-    public readonly ref struct TestDataFacade
+    public readonly ref struct TestDataFacade(ITestOutputHelper logger)
     {
-        public readonly ref struct TestProjectFacade
+        public readonly ref struct TestProjectFacade(ITestOutputHelper logger)
         {
-            public readonly ref struct ProjectSourceFacade
+            public readonly ref struct ProjectSourceFacade(ITestOutputHelper logger)
             {
-                private readonly ITestOutputHelper _logger;
+                [EditorBrowsable(EditorBrowsableState.Never)]
+                public ITestOutputHelper Logger => logger;
 
-                public ITestOutputHelper Logger => _logger;
-
-                public TestProjectInstance Samples(string projectName, [CallerMemberName] string? callerMemberName = null)
+                public TestProjectInstance Samples(string sampleName, [CallerMemberName] string? callerMemberName = null)
                 {
-                    ArgumentException.ThrowIfNullOrEmpty(projectName);
+                    ArgumentException.ThrowIfNullOrEmpty(sampleName);
                     ArgumentException.ThrowIfNullOrEmpty(callerMemberName);
 
                     return new TestProjectInstance(
                         callerMemberName,
-                        TestProjectManager.TestProjects[projectName],
-                        _logger
+                        TestSamplesManager.TestSamples[sampleName].DefaultProject,
+                        logger
                     );
                 }
 
-                public ProjectSourceFacade(ITestOutputHelper logger)
+                public TestProjectInstance Samples(string sampleName, string projectName, [CallerMemberName] string? callerMemberName = null)
                 {
-                    _logger = logger;
+                    ArgumentException.ThrowIfNullOrEmpty(sampleName);
+                    ArgumentException.ThrowIfNullOrEmpty(projectName);
+                    ArgumentException.ThrowIfNullOrEmpty(callerMemberName);
+
+                    TestSample sample = TestSamplesManager.TestSamples[sampleName];
+                    TestProject? project = null;
+                    if (projectName.Contains('.'))
+                    {
+                        project = sample.Projects.FirstOrDefault(p => Path.GetFileName(p.Path) == projectName);
+                    }
+                    if (project is null)
+                    {
+                        IEnumerable<TestProject> matchingProjects = sample.Projects.Where(p => Path.GetFileNameWithoutExtension(p.Path) == projectName);
+                        using IEnumerator<TestProject> enumerator = matchingProjects.GetEnumerator();
+                        if (!enumerator.MoveNext())
+                        {
+                            throw new InvalidOperationException($"Project with the name {projectName} not found.");
+                        }
+
+                        project = enumerator.Current;
+
+                        if (enumerator.MoveNext())
+                        {
+                            throw new InvalidOperationException($"More than one project with the name {projectName}.");
+                        }
+                    }
+
+                    return new TestProjectInstance(
+                        callerMemberName,
+                        project,
+                        logger
+                    );
                 }
             }
 
-            private readonly ITestOutputHelper _logger;
-
-            public ProjectSourceFacade From => new(_logger);
-
-            public TestProjectFacade(ITestOutputHelper logger)
-            {
-                _logger = logger;
-            }
+            public ProjectSourceFacade From => new(logger);
         }
 
-        private readonly ITestOutputHelper _logger;
-
-        public TestProjectFacade Project => new(_logger);
-
-        public TestDataFacade(ITestOutputHelper logger)
-        {
-            _logger = logger;
-        }
+        public TestProjectFacade Project => new(logger);
     }
 
     public ITestOutputHelper Logger { get; private set; }
 
-    public TestDataFacade Data => new(Logger);
+    public TestDataFacade Get => new(Logger);
 
     public MSBuildTest(ITestOutputHelper logger)
     {
