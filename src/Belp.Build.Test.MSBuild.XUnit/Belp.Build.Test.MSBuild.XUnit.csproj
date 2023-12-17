@@ -18,7 +18,6 @@
   <!-- Package Information -->
   <PropertyGroup>
     <Description>An internal package used by Belp.SDK.Test.MSBuild.XUnit.</Description>
-    <DevelopmentDependency>true</DevelopmentDependency>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/Arthri/Belp.Build.Test.MSBuild.XUnit/</PackageProjectUrl>
     <PackageTags>msbuild</PackageTags>
