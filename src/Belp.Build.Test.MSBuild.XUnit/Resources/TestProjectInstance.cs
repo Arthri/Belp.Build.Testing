@@ -1,6 +1,5 @@
-using Microsoft.Build.Execution;
+﻿using Microsoft.Build.Execution;
 using Xunit.Abstractions;
-using static Belp.Build.Test.MSBuild.XUnit.Resources.TestSamplesManager;
 
 namespace Belp.Build.Test.MSBuild.XUnit.Resources;
 
@@ -55,6 +54,11 @@ public readonly struct TestProjectInstance
     /// <returns>The build result.</returns>
     public BuildResult Build(BuildParameters? buildParameters = null, BuildRequestData? buildRequestData = null)
     {
+        if (!Directory.Exists(CacheLocation))
+        {
+            _ = Clone();
+        }
+
         return BuildManager.DefaultBuildManager.Build(
             buildParameters ?? new BuildParametersWithDefaults(new XUnitMSBuildLoggerAdapter(Logger)),
             buildRequestData ?? new BuildRequestData(
@@ -86,6 +90,11 @@ public readonly struct TestProjectInstance
         HostServices? hostServices = null
     )
     {
+        if (!Directory.Exists(CacheLocation))
+        {
+            _ = Clone();
+        }
+
         return BuildManager.DefaultBuildManager.Build(
             buildParameters ?? new BuildParametersWithDefaults(new XUnitMSBuildLoggerAdapter(Logger)),
             new BuildRequestData(
