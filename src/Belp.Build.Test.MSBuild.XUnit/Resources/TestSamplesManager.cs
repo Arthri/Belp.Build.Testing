@@ -1,56 +1,10 @@
-﻿using System.Runtime.InteropServices;
-using System.Security.Cryptography;
-
-namespace Belp.Build.Test.MSBuild.XUnit.Resources;
+﻿namespace Belp.Build.Test.MSBuild.XUnit.Resources;
 
 /// <summary>
 /// Manages the test projects and test caches.
 /// </summary>
-public static class TestSamplesManager
+public static partial class TestSamplesManager
 {
-    /// <summary>
-    /// Provides common paths used by <see cref="TestSamplesManager"/>.
-    /// </summary>
-    public static class Paths
-    {
-        private static string HexHash(ReadOnlySpan<byte> source)
-        {
-            const int HASH_SIZE = 256;
-            Span<byte> buffer = stackalloc byte[HASH_SIZE / 8];
-            _ = SHA256.HashData(source, buffer);
-            return Convert.ToHexString(buffer);
-        }
-
-        /// <summary>
-        /// Gets the directory which contains the test projects.
-        /// </summary>
-        public static string TestSamplesRoot => AppContext.BaseDirectory;
-
-        /// <summary>
-        /// Gets the temporary directory where all caches are located.
-        /// </summary>
-        public static string TempRoot { get; } = Path.Combine(
-            Path.GetTempPath(),
-            "23bf55c5-7020-43d0-a313-9695fe6c313b",
-            HexHash(MemoryMarshal.AsBytes(TestSamplesRoot.AsSpan()))
-        );
-
-        /// <summary>
-        /// Gets the cache directory for cloned projects.
-        /// </summary>
-        public static string ProjectCache { get; } = Path.Combine(TempRoot, "projects");
-
-        /// <summary>
-        /// Gets the temporary packages source.
-        /// </summary>
-        public static string PackagesDirectory { get; } = Path.Combine(TempRoot, "packages");
-
-        /// <summary>
-        /// Gets the cache directory for restored packages.
-        /// </summary>
-        public static string PackagesCache { get; } = Path.Combine(TempRoot, "packages_cache");
-    }
-
     private static readonly Dictionary<string, TestSample> InternalTestSamples;
 
     /// <summary>
@@ -60,7 +14,7 @@ public static class TestSamplesManager
 
     static TestSamplesManager()
     {
-        string[] testSamplesDirectories = Directory.GetDirectories(Paths.TestSamplesRoot);
+        string[] testSamplesDirectories = Directory.GetDirectories(TestPaths.TestSamples);
         var testSamples = new Dictionary<string, TestSample>(testSamplesDirectories.Length);
         for (int i = 0; i < testSamplesDirectories.Length; i++)
         {
@@ -69,36 +23,68 @@ public static class TestSamplesManager
         }
 
         InternalTestSamples = testSamples;
+
+        ClearCache();
     }
 
     private static void CreateTempRoot()
     {
-        _ = Directory.CreateDirectory(Paths.TempRoot);
+        _ = Directory.CreateDirectory(TestPaths.TempRoot);
         File.WriteAllText(
-            Path.Combine(Paths.TempRoot, "nuget.config"),
+            Path.Combine(TestPaths.TempRoot, "nuget.config"),
             $"""
             <?xml version="1.0" encoding="utf-8"?>
             <configuration>
               <config>
-                <add key="globalPackagesFolder" value="{Paths.PackagesCache}" />
+                <add key="globalPackagesFolder" value="{TestPaths.PackagesCache}" />
               </config>
               <packageSources>
                 <clear />
-                <add key="Belp.SDK.Test.MSBuild.XUnit Packages" value="{Paths.PackagesDirectory}" />
+                <add key="Belp.SDK.Test.MSBuild.XUnit Packages" value="{TestPaths.PackagesDirectory}" />
               </packageSources>
             </configuration>
+            """
+        );
+
+        string packages = string.Join('\n',
+            TestPackagesManager
+            .Packages
+            .Select(static p => $"""    <PackageReference Include="{p.ID}" Version="{p.Version}" />""")
+        );
+        File.WriteAllText(
+            Path.Combine(TestPaths.TempRoot, "Directory.Build.props"),
+            $"""
+            <Project>
+
+              <ItemGroup>
+            {packages}
+              </ItemGroup>
+
+              <Import Condition="Exists('$(MSBuildProjectDirectory)\Directory.Test.props')" Project="$(MSBuildProjectDirectory)\Directory.Test.props" />
+
+            </Project>
+            """
+        );
+        File.WriteAllText(
+            Path.Combine(TestPaths.TempRoot, "Directory.Build.targets"),
+            $"""
+            <Project>
+
+              <Import Condition="Exists('$(MSBuildProjectDirectory)\Directory.Test.targets')" Project="$(MSBuildProjectDirectory)\Directory.Test.targets" />
+
+            </Project>
             """
         );
     }
 
     /// <summary>
-    /// Deletes and recreates <see cref="Paths.TempRoot"/>.
+    /// Deletes and recreates <see cref="TestPaths.TempRoot"/>.
     /// </summary>
     public static void ClearCache()
     {
         try
         {
-            Directory.Delete(Paths.TempRoot, true);
+            Directory.Delete(TestPaths.TempRoot, true);
         }
         catch (DirectoryNotFoundException)
         {
@@ -107,17 +93,17 @@ public static class TestSamplesManager
     }
 
     /// <summary>
-    /// Deletes and recreates <see cref="Paths.ProjectCache"/>.
+    /// Deletes and recreates <see cref="TestPaths.ProjectCache"/>.
     /// </summary>
     public static void ClearProjectsCache()
     {
         try
         {
-            Directory.Delete(Paths.ProjectCache, true);
+            Directory.Delete(TestPaths.ProjectCache, true);
         }
         catch (DirectoryNotFoundException)
         {
         }
-        _ = Directory.CreateDirectory(Paths.ProjectCache);
+        _ = Directory.CreateDirectory(TestPaths.ProjectCache);
     }
 }

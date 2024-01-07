@@ -1,4 +1,4 @@
-﻿using Microsoft.Build.Execution;
+using Microsoft.Build.Execution;
 using Xunit.Abstractions;
 using static Belp.Build.Test.MSBuild.XUnit.Resources.TestSamplesManager;
 
@@ -43,7 +43,7 @@ public readonly struct TestProjectInstance
 
         Project = project;
         InstanceName = instanceName;
-        CacheLocation = Path.Combine(Paths.ProjectCache, instanceName);
+        CacheLocation = Path.Combine(TestPaths.ProjectCache, instanceName);
         Logger = logger;
     }
 
