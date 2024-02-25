@@ -1,30 +1,36 @@
-using Microsoft.Build.Evaluation;
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
 using Xunit.Abstractions;
 using IOPath = System.IO.Path;
+using MSBuildProject = Microsoft.Build.Evaluation.Project;
 
 namespace Belp.Build.Test.MSBuild.XUnit.Resources;
 
 /// <summary>
 /// Represents a <see cref="TestProject"/> backed by a file.
 /// </summary>
-public class FileTestProject : TestProject
+public sealed class FileTestProject : TestProject
 {
     /// <summary>
     /// Represents a test project instance for <see cref="FileTestProject"/>.
     /// </summary>
     /// <remarks>Instances must be created using <see cref="FileTestProject.Clone(string, ITestOutputHelper)"/>.</remarks>
-    public class Instance : TestProjectInstance<FileTestProject>
+    public sealed class Instance : TestProjectInstance<FileTestProject>
     {
         /// <summary>
         /// Gets the clone's location.
         /// </summary>
         public string CacheLocation { get; }
 
+        private readonly Lazy<MSBuildProject> _project;
+
+        /// <inheritdoc />
+        public override MSBuildProject Project => _project.Value;
+
         internal Instance(FileTestProject project, string instanceName, ITestOutputHelper logger)
             : base(project, instanceName, logger)
         {
             CacheLocation = IOPath.Combine(TestPaths.ProjectCache, instanceName);
+            _project = new(() => MSBuildProject.FromFile(TestProject.Path, new()), true);
 
             if (!Directory.Exists(CacheLocation))
             {
@@ -53,7 +59,7 @@ public class FileTestProject : TestProject
         {
             Delete();
 
-            string sourceDirectory = Project.RootPath;
+            string sourceDirectory = TestProject.RootPath;
 
             foreach (string file in Directory.GetFiles(sourceDirectory, "*", SearchOption.AllDirectories))
             {
@@ -90,11 +96,6 @@ public class FileTestProject : TestProject
             _name = IOPath.GetFileName(Path);
         }
     }
-
-    private readonly Lazy<Project> _project;
-
-    /// <inheritdoc />
-    public override Project Project => _project.Value;
 
     private string _name;
 

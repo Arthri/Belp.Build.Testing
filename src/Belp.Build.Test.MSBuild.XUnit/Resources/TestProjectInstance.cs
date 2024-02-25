@@ -1,3 +1,4 @@
+﻿using Microsoft.Build.Evaluation;
 using Microsoft.Build.Execution;
 using Xunit.Abstractions;
 
@@ -11,12 +12,17 @@ public abstract class TestProjectInstance
     /// <summary>
     /// Gets the original test project.
     /// </summary>
-    public abstract TestProject Project { get; }
+    public abstract TestProject TestProject { get; }
+
+    /// <summary>
+    /// Gets the MSBuild project used for building.
+    /// </summary>
+    public abstract Project Project { get; }
 
     private readonly Lazy<ProjectInstance> _projectInstance;
 
     /// <summary>
-    /// Gets the project instance used for building.
+    /// Gets the MSBuild project instance used for building.
     /// </summary>
     public ProjectInstance ProjectInstance => _projectInstance.Value;
 
@@ -61,9 +67,24 @@ public abstract class TestProjectInstance
     /// </summary>
     public TestProjectInstance()
     {
-#pragma warning disable IDE0200 // Remove unnecessary lambda expression
-        _projectInstance = new(() => Project.Project.CreateProjectInstance(), true);
-#pragma warning restore IDE0200 // Remove unnecessary lambda expression
+        _projectInstance = new(CreateProjectInstance, true);
+
+        ProjectInstance CreateProjectInstance()
+        {
+            ProjectInstance projectInstance = Project.CreateProjectInstance();
+
+            for (int i = 0; i < TestPackagesManager.Packages.Count; i++)
+            {
+                TestPackage package = TestPackagesManager.Packages[i];
+
+                _ = projectInstance.AddItem("PackageReference", package.ID, new Dictionary<string, string>
+                {
+                    { "Version", package.Version },
+                });
+            }
+
+            return projectInstance;
+        }
     }
 }
 
@@ -73,13 +94,13 @@ public abstract class TestProjectInstance<T> : TestProjectInstance
     where T : TestProject
 {
     /// <inheritdoc />
-    public override T TestProject { get; }
+    public sealed override T TestProject { get; }
 
     /// <inheritdoc />
-    public override string InstanceName { get; }
+    public sealed override string InstanceName { get; }
 
     /// <inheritdoc />
-    public override ITestOutputHelper Logger { get; }
+    public sealed override ITestOutputHelper Logger { get; }
 
     /// <summary>
     /// Initializes a new instance of <see cref="TestProjectInstance{T}" /> for the specified <paramref name="project" /> with the specified <paramref name="instanceName" /> and <paramref name="logger" />.
@@ -89,7 +110,7 @@ public abstract class TestProjectInstance<T> : TestProjectInstance
     /// <param name="logger">The instance's logger.</param>
     public TestProjectInstance(T project, string instanceName, ITestOutputHelper logger)
     {
-        Project = project;
+        TestProject = project;
         InstanceName = instanceName;
         Logger = logger;
     }
