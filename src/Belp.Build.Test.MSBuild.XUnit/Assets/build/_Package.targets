@@ -26,14 +26,14 @@
   <ItemGroup>
     <None Update="samples/**/*" CopyToOutputDirectory="PreserveNewest" />
     <None Include="samples/**/*.*proj" CopyToOutputDirectory="PreserveNewest" />
-    <_OldSamples Include="$(TargetDir)/samples/**/*" />
+    <_DiscardedSamples Include="$(TargetDir)/samples/**/*" />
     <_CurrentSamples Include="samples/**/*" />
-    <_OldSamples Remove="@(_CurrentSamples->'$(TargetDir)%(Identity)')" />
+    <_DiscardedSamples Remove="@(_CurrentSamples->'$(TargetDir)%(Identity)')" />
     <_CurrentSamples Remove="@(_CurrentSamples)" />
   </ItemGroup>
 
   <Target Name="RemoveOldSampleFiles" BeforeTargets="Build">
-    <Delete Files="@(_OldSamples)" />
+    <Delete Files="@(_DiscardedSamples)" />
   </Target>
 
 
