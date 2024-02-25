@@ -17,6 +17,6 @@ public record struct TextSpan(TextSpan.Position Start, TextSpan.Position End)
     /// <inheritdoc />
     public override readonly string ToString()
     {
-        return $"{Start.Line}:{Start.Column},${End.Line}:${End.Column}";
+        return $"{Start.Line}:{Start.Column},{End.Line}:{End.Column}";
     }
 }
