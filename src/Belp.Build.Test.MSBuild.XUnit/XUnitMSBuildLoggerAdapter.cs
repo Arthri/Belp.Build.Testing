@@ -102,7 +102,21 @@ public class XUnitMSBuildLoggerAdapter : ITestOutputHelper, ILogger
     /// <summary>
     /// Gets a list of diagnostics(errors, warnings, and messages) catched by the logger.
     /// </summary>
-    public IReadOnlyList<Diagnostic> Diagnostics => new DiagnosticAggregateList(this);
+    public IReadOnlyList<Diagnostic> AllMessages => new DiagnosticAggregateList(this);
+
+    /// <summary>
+    /// Gets a list of diagnostics(errors, warnings, and messages) catched by the logger. Normal priority and low priority messages are excluded.
+    /// </summary>
+    public IEnumerable<Diagnostic> Diagnostics => Errors
+        .Concat(Warnings)
+        .Concat(Messages.Where(static m => m.Severity <= Diagnostic.SeverityLevel.Informational))
+        .OrderBy(static d => d.Severity)
+        .ThenBy(static d => d.Code)
+        .ThenBy(static d => d.Message)
+        .ThenBy(static d => d.File)
+        .ThenBy(static d => d.Span)
+        .ThenBy(static d => d.Project)
+        ;
 
 
 
