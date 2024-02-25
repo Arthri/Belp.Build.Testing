@@ -20,4 +20,10 @@
     <Copy SourceFiles="@(_BuildProjectPackages)" DestinationFolder="$(_TestPackagesDirectory)" />
   </Target>
 
+
+
+  <PropertyGroup>
+    <DefineConstants Condition="'$(BelpTestUseMSBuildModuleInitializer)' != 'false'">$(DefineConstants);BELP_BUILD_TEST_MSBUILD_XUNIT_MODULE_INITIALIZER</DefineConstants>
+  </PropertyGroup>
+
 </Project>
