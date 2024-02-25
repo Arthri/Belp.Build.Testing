@@ -8,12 +8,17 @@ namespace Belp.Build.Test.MSBuild.XUnit.Resources;
 /// </summary>
 public static class TestPaths
 {
-    private static string HexHash(ReadOnlySpan<byte> source)
+    internal static string HexHash(string input)
+    {
+        return HexHash(MemoryMarshal.AsBytes(input.AsSpan()));
+    }
+
+    internal static string HexHash(ReadOnlySpan<byte> source)
     {
         const int HASH_SIZE = 256;
         Span<byte> buffer = stackalloc byte[HASH_SIZE / 8];
-        _ = SHA256.HashData(source, buffer);
-        return Convert.ToHexString(buffer);
+        int bytesWritten = SHA256.HashData(source, buffer);
+        return Convert.ToHexString(buffer[..bytesWritten]);
     }
 
     /// <summary>
@@ -43,7 +48,7 @@ public static class TestPaths
     public static string TempRoot { get; } = Path.Combine(
         Path.GetTempPath(),
         "23bf55c5-7020-43d0-a313-9695fe6c313b",
-        HexHash(MemoryMarshal.AsBytes(TestRoot.AsSpan()))
+        HexHash(TestRoot)
     );
 
     /// <summary>
