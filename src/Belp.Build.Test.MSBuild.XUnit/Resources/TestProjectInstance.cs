@@ -1,4 +1,4 @@
-using Microsoft.Build.Evaluation;
+﻿using Microsoft.Build.Evaluation;
 using Microsoft.Build.Execution;
 using Xunit.Abstractions;
 
@@ -19,42 +19,47 @@ public abstract class TestProjectInstance
     /// </summary>
     public abstract Project Project { get; }
 
-    private readonly Lazy<ProjectInstance> _projectInstance;
-
-    /// <summary>
-    /// Gets the MSBuild project instance used for building.
-    /// </summary>
-    public ProjectInstance ProjectInstance => _projectInstance.Value;
-
     /// <summary>
     /// Gets the logger used by builds.
     /// </summary>
     public abstract ITestOutputHelper Logger { get; }
 
-    /// <inheritdoc cref="Build(out XUnitMSBuildLoggerAdapter, Action{BuildParameters}?, Action{BuildRequestData}?)" />
-    public BuildResult Build(Action<BuildParameters>? configureParameters = null, Action<BuildRequestData>? configureRequestData = null)
+    /// <inheritdoc cref="Build(out XUnitMSBuildLoggerAdapter, BuildRequestDataFlags?, HostServices?, Action{BuildParameters}?, Action{BuildRequestData}?)" />
+    public BuildResult Build(BuildRequestDataFlags? buildRequestDataFlags = null, HostServices? hostServices = null, Action<BuildParameters>? configureParameters = null, Action<BuildRequestData>? configureRequestData = null)
     {
-        return Build(out _, configureParameters, configureRequestData);
+        return Build(out _, buildRequestDataFlags, hostServices, configureParameters, configureRequestData);
     }
 
     /// <summary>
     /// Builds the project instance.
     /// </summary>
     /// <param name="logger">The logger used during the build.</param>
+    /// <param name="buildRequestDataFlags"><inheritdoc cref="BuildRequestData(ProjectInstance, string[], HostServices, BuildRequestDataFlags)" path="/param[@name='flags']" /></param>
+    /// <param name="hostServices"><inheritdoc cref="BuildRequestData(ProjectInstance, string[], HostServices)" path="/param[@name='hostServices']" /></param>
     /// <param name="configureParameters">An optional action which configures the assembled <see cref="BuildParameters"/> before building.</param>
     /// <param name="configureRequestData">An optional action which configures the assembled <see cref="BuildRequestData"/> before building.</param>
     /// <returns>The build result.</returns>
-    public BuildResult Build(out XUnitMSBuildLoggerAdapter logger, Action<BuildParameters>? configureParameters = null, Action<BuildRequestData>? configureRequestData = null)
+    public BuildResult Build(out XUnitMSBuildLoggerAdapter logger, BuildRequestDataFlags? buildRequestDataFlags = null, HostServices? hostServices = null, Action<BuildParameters>? configureParameters = null, Action<BuildRequestData>? configureRequestData = null)
     {
-        var buildParameters = new BuildParametersWithDefaults(logger = new XUnitMSBuildLoggerAdapter(Logger));
-        var buildRequestData = new BuildRequestData(ProjectInstance, ["Restore", "Build"]);
-        configureParameters?.Invoke(buildParameters);
-        configureRequestData?.Invoke(buildRequestData);
+        // Restore
+        {
+            var buildParameters = new BuildParametersWithDefaults(new XUnitMSBuildLoggerAdapter(Logger));
+            var buildRequestData = new BuildRequestData(Project.CreateProjectInstance(), ["Restore"]);
 
-        return BuildManager.DefaultBuildManager.Build(
-            buildParameters,
-            buildRequestData
-        );
+            _ = BuildManager.DefaultBuildManager.Build(buildParameters, buildRequestData);
+        }
+
+        // Build
+        {
+            var buildParameters = new BuildParametersWithDefaults(logger = new XUnitMSBuildLoggerAdapter(Logger));
+            Project.MarkDirty();
+            Project.ReevaluateIfNecessary();
+            var buildRequestData = new BuildRequestData(Project.CreateProjectInstance(), ["Build"], hostServices, buildRequestDataFlags ?? BuildRequestDataFlags.None);
+            configureParameters?.Invoke(buildParameters);
+            configureRequestData?.Invoke(buildRequestData);
+
+            return BuildManager.DefaultBuildManager.Build(buildParameters, buildRequestData);
+        }
     }
 
     /// <summary>
@@ -62,24 +67,6 @@ public abstract class TestProjectInstance
     /// </summary>
     public TestProjectInstance()
     {
-        _projectInstance = new(CreateProjectInstance, true);
-
-        ProjectInstance CreateProjectInstance()
-        {
-            ProjectInstance projectInstance = Project.CreateProjectInstance();
-
-            for (int i = 0; i < TestPackagesManager.Packages.Count; i++)
-            {
-                TestPackage package = TestPackagesManager.Packages[i];
-
-                _ = projectInstance.AddItem("PackageReference", package.ID, new Dictionary<string, string>
-                {
-                    { "Version", package.Version },
-                });
-            }
-
-            return projectInstance;
-        }
     }
 }
 
