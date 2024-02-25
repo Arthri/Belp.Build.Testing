@@ -61,7 +61,9 @@ public abstract class TestProjectInstance
     /// </summary>
     public TestProjectInstance()
     {
-        _projectInstance = new(Project.Project.CreateProjectInstance, true);
+#pragma warning disable IDE0200 // Remove unnecessary lambda expression
+        _projectInstance = new(() => Project.Project.CreateProjectInstance(), true);
+#pragma warning restore IDE0200 // Remove unnecessary lambda expression
     }
 }
 
