@@ -25,10 +25,18 @@ internal static class TestPackagesManager
             ZipArchiveEntry? nuspecEntry = zip.Entries.FirstOrDefault(e => !e.FullName.Contains('/') && !e.FullName.Contains('\\') && e.FullName.EndsWith(".nuspec")) ?? throw new InvalidOperationException($"{packageFile} must have a .nuspec file.");
             using Stream nuspecStream = nuspecEntry.Open();
             var nuspec = XDocument.Load(nuspecStream);
-            XElement nuspecRoot = nuspec.Root ?? throw new InvalidOperationException($"{packageFile}@{filename}.nuspec must have a root element.");
-            XElement packageMetadata = nuspec.Root.Element("metadata") ?? throw new InvalidOperationException($"{packageFile}@{filename}.nuspec must have a metadata element inside the root element.");
-            XElement packageID = packageMetadata.Element("id") ?? throw new InvalidOperationException($"{packageFile}@{filename}.nuspec must have an id element under the metadata element.");
-            XElement packageVersion = packageMetadata.Element("version") ?? throw new InvalidOperationException($"{packageFile}@{filename}.nuspec must have a version element under the metadata element.");
+            if (nuspec.Root is null)
+            {
+                throw new InvalidOperationException($"{packageFile}@{filename}.nuspec must have a root element.");
+            }
+            XNamespace? defaultNamespace = nuspec.Root.GetDefaultNamespace();
+            XName GetXName(string name)
+            {
+                return defaultNamespace?.GetName(name) ?? name;
+            }
+            XElement packageMetadata = nuspec.Root.Element(GetXName("metadata")) ?? throw new InvalidOperationException($"{packageFile}@{filename}.nuspec must have a metadata element inside the root element.");
+            XElement packageID = packageMetadata.Element(GetXName("id")) ?? throw new InvalidOperationException($"{packageFile}@{filename}.nuspec must have an id element under the metadata element.");
+            XElement packageVersion = packageMetadata.Element(GetXName("version")) ?? throw new InvalidOperationException($"{packageFile}@{filename}.nuspec must have a version element under the metadata element.");
 
             if (!IsValidValue(packageID.Value))
             {
