@@ -13,10 +13,9 @@
       <_BuildProjectPackages Include="@(_BuildProjectPackOutputs)" Condition="'%(Extension)' == '.nupkg'" />
     </ItemGroup>
 
-    <MakeDir Directories="$(_TestPackagesDirectory)" />
-
     <Error Code="BLP4010" Text="%24(_TestPackagesDirectory) is empty." Condition="'$(_TestPackagesDirectory)' == ''" />
     <RemoveDir Directories="$(_TestPackagesDirectory)" />
+    <MakeDir Directories="$(_TestPackagesDirectory)" />
     <Copy SourceFiles="@(_BuildProjectPackages)" DestinationFolder="$(_TestPackagesDirectory)" />
   </Target>
 
