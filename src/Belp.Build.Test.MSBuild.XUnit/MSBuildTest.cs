@@ -1,5 +1,4 @@
 ﻿using Belp.Build.Test.MSBuild.XUnit.Resources;
-using System.Runtime.CompilerServices;
 using Xunit.Abstractions;
 
 namespace Belp.Build.Test.MSBuild.XUnit;
@@ -31,14 +30,12 @@ public class MSBuildTest
                 /// Fetches the default project of the sample with the specified <paramref name="sampleName"/>.
                 /// </summary>
                 /// <param name="sampleName">The name of the sample.</param>
-                /// <param name="callerMemberName">The name of the caller. <b>Do not specify.</b></param>
                 /// <returns>The fetched project.</returns>
-                public TestProjectInstance Samples(string sampleName, [CallerMemberName] string? callerMemberName = null)
+                public TestProjectInstance Samples(string sampleName)
                 {
                     ArgumentException.ThrowIfNullOrEmpty(sampleName);
-                    ArgumentException.ThrowIfNullOrEmpty(callerMemberName);
 
-                    return TestSamplesManager.TestSamples[sampleName].DefaultProject.Clone(callerMemberName, logger);
+                    return TestSamplesManager.TestSamples[sampleName].DefaultProject.Clone(logger);
                 }
 
                 /// <summary>
@@ -46,13 +43,11 @@ public class MSBuildTest
                 /// </summary>
                 /// <param name="sampleName">The name of the sample.</param>
                 /// <param name="projectName">The name of the project to fetch.</param>
-                /// <param name="callerMemberName">The name of the caller. <b>Do not specify.</b></param>
                 /// <returns>The fetched project.</returns>
-                public TestProjectInstance Samples(string sampleName, string projectName, [CallerMemberName] string? callerMemberName = null)
+                public TestProjectInstance Samples(string sampleName, string projectName)
                 {
                     ArgumentException.ThrowIfNullOrEmpty(sampleName);
                     ArgumentException.ThrowIfNullOrEmpty(projectName);
-                    ArgumentException.ThrowIfNullOrEmpty(callerMemberName);
 
                     TestSample sample = TestSamplesManager.TestSamples[sampleName];
                     TestProject? project = null;
@@ -67,7 +62,7 @@ public class MSBuildTest
 
                     return enumerator.MoveNext()
                         ? throw new InvalidOperationException($"More than one project with the name {projectName}.")
-                        : project.Clone(callerMemberName, logger)
+                        : project.Clone(logger)
                         ;
                 }
             }

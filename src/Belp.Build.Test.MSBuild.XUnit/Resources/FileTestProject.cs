@@ -13,7 +13,7 @@ public sealed class FileTestProject : TestProject
     /// <summary>
     /// Represents a test project instance for <see cref="FileTestProject"/>.
     /// </summary>
-    /// <remarks>Instances must be created using <see cref="FileTestProject.Clone(string, ITestOutputHelper)"/>.</remarks>
+    /// <remarks>Instances must be created using <see cref="FileTestProject.Clone(ITestOutputHelper)"/>.</remarks>
     public sealed class Instance : TestProjectInstance<FileTestProject>
     {
         /// <summary>
@@ -26,10 +26,10 @@ public sealed class FileTestProject : TestProject
         /// <inheritdoc />
         public override MSBuildProject Project => _project.Value;
 
-        internal Instance(FileTestProject project, string instanceName, ITestOutputHelper logger)
-            : base(project, instanceName, logger)
+        internal Instance(FileTestProject project, ITestOutputHelper logger)
+            : base(project, logger)
         {
-            CacheLocation = IOPath.Combine(TestPaths.ProjectCache, TestPaths.HexHash(instanceName));
+            CacheLocation = IOPath.Combine(TestPaths.ProjectCache, Guid.NewGuid().ToString("N"));
             _project = new(() => MSBuildProject.FromFile(IOPath.Combine(CacheLocation, IOPath.GetRelativePath(TestProject.RootPath, TestProject.Path)), new()), true);
 
             if (!Directory.Exists(CacheLocation))
@@ -110,8 +110,8 @@ public sealed class FileTestProject : TestProject
     }
 
     /// <inheritdoc />
-    public override Instance Clone(string instanceName, ITestOutputHelper logger)
+    public override Instance Clone(ITestOutputHelper logger)
     {
-        return new(this, instanceName, logger);
+        return new(this, logger);
     }
 }

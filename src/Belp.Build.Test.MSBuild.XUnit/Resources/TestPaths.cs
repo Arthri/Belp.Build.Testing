@@ -1,26 +1,10 @@
-﻿using System.Runtime.InteropServices;
-using System.Security.Cryptography;
-
-namespace Belp.Build.Test.MSBuild.XUnit.Resources;
+﻿namespace Belp.Build.Test.MSBuild.XUnit.Resources;
 
 /// <summary>
 /// Provides common paths used by <see cref="TestSamplesManager"/>.
 /// </summary>
 public static class TestPaths
 {
-    internal static string HexHash(string input)
-    {
-        return HexHash(MemoryMarshal.AsBytes(input.AsSpan()));
-    }
-
-    internal static string HexHash(ReadOnlySpan<byte> source)
-    {
-        const int HASH_SIZE = 256;
-        Span<byte> buffer = stackalloc byte[HASH_SIZE / 8];
-        int bytesWritten = SHA256.HashData(source, buffer);
-        return Convert.ToHexString(buffer[..bytesWritten]);
-    }
-
     /// <summary>
     /// Gets the directory which contains the test files.
     /// </summary>
@@ -47,8 +31,7 @@ public static class TestPaths
     /// </summary>
     public static string TempRoot { get; } = Path.Combine(
         Path.GetTempPath(),
-        "23bf55c5-7020-43d0-a313-9695fe6c313b",
-        HexHash(TestRoot)
+        Guid.NewGuid().ToString("N")
     );
 
     /// <summary>

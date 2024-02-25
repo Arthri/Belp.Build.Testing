@@ -1,4 +1,4 @@
-﻿using Microsoft.Build.Evaluation;
+using Microsoft.Build.Evaluation;
 using Microsoft.Build.Execution;
 using Xunit.Abstractions;
 
@@ -25,11 +25,6 @@ public abstract class TestProjectInstance
     /// Gets the MSBuild project instance used for building.
     /// </summary>
     public ProjectInstance ProjectInstance => _projectInstance.Value;
-
-    /// <summary>
-    /// Gets the name of the clone or instance.
-    /// </summary>
-    public abstract string InstanceName { get; }
 
     /// <summary>
     /// Gets the logger used by builds.
@@ -97,21 +92,16 @@ public abstract class TestProjectInstance<T> : TestProjectInstance
     public sealed override T TestProject { get; }
 
     /// <inheritdoc />
-    public sealed override string InstanceName { get; }
-
-    /// <inheritdoc />
     public sealed override ITestOutputHelper Logger { get; }
 
     /// <summary>
-    /// Initializes a new instance of <see cref="TestProjectInstance{T}" /> for the specified <paramref name="project" /> with the specified <paramref name="instanceName" /> and <paramref name="logger" />.
+    /// Initializes a new instance of <see cref="TestProjectInstance{T}" /> for the specified <paramref name="project" /> with the specified <paramref name="logger" />.
     /// </summary>
     /// <param name="project">The project which the instance is a clone of.</param>
-    /// <param name="instanceName">The name of the instance.</param>
     /// <param name="logger">The instance's logger.</param>
-    public TestProjectInstance(T project, string instanceName, ITestOutputHelper logger)
+    public TestProjectInstance(T project, ITestOutputHelper logger)
     {
         TestProject = project;
-        InstanceName = instanceName;
         Logger = logger;
     }
 }
