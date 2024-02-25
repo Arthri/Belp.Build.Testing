@@ -57,7 +57,13 @@ public class FileTestProject : TestProject
 
             foreach (string file in Directory.GetFiles(sourceDirectory, "*", SearchOption.AllDirectories))
             {
-                File.Copy(file, IOPath.Combine(CacheLocation, IOPath.GetRelativePath(sourceDirectory, file)));
+                string destinationPath = IOPath.Combine(CacheLocation, IOPath.GetRelativePath(sourceDirectory, file));
+                string? destinationDirectory = IOPath.GetDirectoryName(destinationPath);
+                if (destinationDirectory is not null)
+                {
+                    _ = Directory.CreateDirectory(destinationDirectory);
+                }
+                File.Copy(file, destinationPath);
             }
         }
     }
