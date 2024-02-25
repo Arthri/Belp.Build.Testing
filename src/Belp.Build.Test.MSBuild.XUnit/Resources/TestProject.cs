@@ -1,5 +1,4 @@
-﻿using Microsoft.Build.Evaluation;
-using Xunit.Abstractions;
+﻿using Xunit.Abstractions;
 
 namespace Belp.Build.Test.MSBuild.XUnit.Resources;
 
@@ -13,11 +12,6 @@ public abstract class TestProject
     /// </summary>
     /// <remarks>The name includes the project's file extension to avoid ambiguity.</remarks>
     public abstract string Name { get; }
-
-    /// <summary>
-    /// Gets the represented project.
-    /// </summary>
-    public abstract Project Project { get; }
 
     /// <summary>
     /// Creates a new instance of the current project with the specified <paramref name="instanceName"/> and <paramref name="logger"/>.

@@ -1,4 +1,4 @@
-﻿using Microsoft.Build.Evaluation;
+using Microsoft.Build.Evaluation;
 using System.Diagnostics.CodeAnalysis;
 using Xunit.Abstractions;
 using IOPath = System.IO.Path;
@@ -106,7 +106,6 @@ public class FileTestProject : TestProject
     /// </summary>
     public FileTestProject()
     {
-        _project = new(() => Project.FromFile(_path, new()), true);
     }
 
     /// <inheritdoc />

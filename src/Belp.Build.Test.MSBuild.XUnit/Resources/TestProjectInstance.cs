@@ -1,4 +1,4 @@
-﻿using Microsoft.Build.Execution;
+using Microsoft.Build.Execution;
 using Xunit.Abstractions;
 
 namespace Belp.Build.Test.MSBuild.XUnit.Resources;
@@ -73,7 +73,7 @@ public abstract class TestProjectInstance<T> : TestProjectInstance
     where T : TestProject
 {
     /// <inheritdoc />
-    public override T Project { get; }
+    public override T TestProject { get; }
 
     /// <inheritdoc />
     public override string InstanceName { get; }
