@@ -54,7 +54,7 @@ public static class TestPaths
     /// <summary>
     /// Gets the temporary packages source.
     /// </summary>
-    public static string PackagesDirectory { get; } = Path.Combine(TempRoot, "packages");
+    public static string PackagesDirectory { get; } = TestPackages;
 
     /// <summary>
     /// Gets the cache directory for restored packages.
