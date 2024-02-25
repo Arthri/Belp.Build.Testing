@@ -24,8 +24,8 @@
 
   <!-- Output Configuration -->
   <ItemGroup>
-    <None Include="samples/**/*.*proj" />
     <None Update="samples/**/*" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="samples/**/*.*proj" CopyToOutputDirectory="PreserveNewest" />
     <_CopiedSamples Include="$(TargetDir)/samples/**/*" />
     <_CopiedSamples Remove="samples/**/*" />
   </ItemGroup>
