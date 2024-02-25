@@ -47,6 +47,35 @@ public static partial class TestSamplesManager
         );
 
         _ = Directory.CreateDirectory(TestPaths.PackagesDirectory);
+        string packages = string.Join('\n',
+            TestPackagesManager
+            .Packages
+            .Select(static p => $"""    <PackageReference Include="{p.ID}" Version="{p.Version}" />""")
+        );
+        File.WriteAllText(
+            Path.Combine(TestPaths.TempRoot, "Directory.Build.props"),
+            $"""
+            <Project>
+
+              <ItemGroup>
+            {packages}
+              </ItemGroup>
+
+              <Import Condition="Exists('$(MSBuildProjectDirectory)\Directory.Test.props')" Project="$(MSBuildProjectDirectory)\Directory.Test.props" />
+
+            </Project>
+            """
+        );
+        File.WriteAllText(
+            Path.Combine(TestPaths.TempRoot, "Directory.Build.targets"),
+            $"""
+            <Project>
+
+              <Import Condition="Exists('$(MSBuildProjectDirectory)\Directory.Test.targets')" Project="$(MSBuildProjectDirectory)\Directory.Test.targets" />
+
+            </Project>
+            """
+        );
     }
 
     /// <summary>
