@@ -16,11 +16,34 @@ public record struct Diagnostic(Diagnostic.SeverityLevel Severity, string Code, 
     /// </summary>
     public enum SeverityLevel
     {
+        /// <summary>
+        /// Events which result in an irrecoverable application state.
+        /// </summary>
         Critical = 1,
+
+        /// <summary>
+        /// Events which result in termination of some paths due to failure.
+        /// </summary>
         Error = 2,
+
+        /// <summary>
+        /// Events which are unexpected.
+        /// </summary>
         Warning = 3,
+
+        /// <summary>
+        /// Events which document the state of the application.
+        /// </summary>
         Informational = 4,
+
+        /// <summary>
+        /// Events which contain more information about the application's current state.
+        /// </summary>
         Verbose = 5,
+
+        /// <summary>
+        /// Events which contain the most information about the application's current state.
+        /// </summary>
         Diagnostic = 6,
     }
 
