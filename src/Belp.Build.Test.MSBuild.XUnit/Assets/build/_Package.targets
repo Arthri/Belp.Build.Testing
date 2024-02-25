@@ -22,6 +22,19 @@
 
 
 
+  <!-- Output Configuration -->
+  <ItemGroup>
+    <None Update="samples/**/*" CopyToOutputDirectory="PreserveNewest" />
+    <_CopiedSamples Include="$(TargetDir)/samples/**/*" />
+    <_CopiedSamples Remove="samples/**/*" />
+  </ItemGroup>
+
+  <Target Name="RemoveOldSampleFiles" BeforeTargets="Build">
+    <Delete Files="@(_CopiedSamples)" />
+  </Target>
+
+
+
   <PropertyGroup>
     <DefineConstants Condition="'$(BelpTestUseMSBuildModuleInitializer)' != 'false'">$(DefineConstants);BELP_BUILD_TEST_MSBUILD_XUNIT_MODULE_INITIALIZER</DefineConstants>
   </PropertyGroup>
