@@ -22,7 +22,7 @@ internal static class TestPackagesManager
             using var zipStream = new FileStream(packageFile, FileMode.Open, FileAccess.Read, FileShare.Read);
             using var zip = new ZipArchive(zipStream);
 
-            ZipArchiveEntry? nuspecEntry = zip.GetEntry($"{filename}.nuspec") ?? throw new InvalidOperationException($"{packageFile} must have a .nuspec file with the same name as the package.");
+            ZipArchiveEntry? nuspecEntry = zip.Entries.FirstOrDefault(e => !e.FullName.Contains('/') && !e.FullName.Contains('\\') && e.FullName.EndsWith(".nuspec")) ?? throw new InvalidOperationException($"{packageFile} must have a .nuspec file.");
             using Stream nuspecStream = nuspecEntry.Open();
             var nuspec = XDocument.Load(nuspecStream);
             XElement nuspecRoot = nuspec.Root ?? throw new InvalidOperationException($"{packageFile}@{filename}.nuspec must have a root element.");
