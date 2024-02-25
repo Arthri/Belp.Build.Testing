@@ -1,4 +1,4 @@
-namespace Belp.Build.Test.MSBuild.XUnit.Resources;
+﻿namespace Belp.Build.Test.MSBuild.XUnit.Resources;
 
 /// <summary>
 /// Manages the test projects and test caches.
@@ -45,6 +45,8 @@ public static partial class TestSamplesManager
             </configuration>
             """
         );
+
+        _ = Directory.CreateDirectory(TestPaths.PackagesDirectory);
     }
 
     /// <summary>
