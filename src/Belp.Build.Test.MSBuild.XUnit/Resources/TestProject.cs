@@ -1,31 +1,29 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using Microsoft.Build.Evaluation;
+using Xunit.Abstractions;
 
 namespace Belp.Build.Test.MSBuild.XUnit.Resources;
 
 /// <summary>
 /// Provides an interface for projects inside test samples.
 /// </summary>
-public sealed class TestProject
+public abstract class TestProject
 {
     /// <summary>
-    /// Gets the path the project is located in.
+    /// Gets the name of the project.
     /// </summary>
-    public string RootPath { get; private init; }
-
-    private readonly string _path;
+    /// <remarks>The name includes the project's file extension to avoid ambiguity.</remarks>
+    public abstract string Name { get; }
 
     /// <summary>
-    /// Gets the path to the project file.
+    /// Gets the represented project.
     /// </summary>
-    public required string Path
-    {
-        get => _path;
+    public abstract Project Project { get; }
 
-        [MemberNotNull(nameof(RootPath), nameof(_path))]
-        init
-        {
-            _path = value;
-            RootPath = System.IO.Path.GetDirectoryName(value) ?? throw new InvalidOperationException($"{value}'s parent directory is null.");
-        }
-    }
+    /// <summary>
+    /// Creates a new instance of the current project with the specified <paramref name="instanceName"/> and <paramref name="logger"/>.
+    /// </summary>
+    /// <param name="instanceName">The name of the instance.</param>
+    /// <param name="logger">The instance's logger.</param>
+    /// <returns>A new instance with the specified <paramref name="instanceName"/> and <paramref name="logger"/>.</returns>
+    public abstract TestProjectInstance Clone(string instanceName, ITestOutputHelper logger);
 }

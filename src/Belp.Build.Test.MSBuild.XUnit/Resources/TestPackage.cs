@@ -15,6 +15,11 @@ internal readonly struct TestPackage
     /// </summary>
     public string Version { get; }
 
+    /// <summary>
+    /// Initializes a new instance of <see cref="TestPackage"/> with the specified <paramref name="id"/> and <paramref name="packageVersion"/>.
+    /// </summary>
+    /// <param name="id">The package's ID.</param>
+    /// <param name="packageVersion">The package's version.</param>
     public TestPackage(string id, string packageVersion)
     {
         ID = id;

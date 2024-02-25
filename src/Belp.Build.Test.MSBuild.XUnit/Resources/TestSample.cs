@@ -42,10 +42,10 @@ public sealed class TestSample
             throw new InvalidOperationException($"Directory {rootDirectory} does not contain any project files.");
         }
 
-        var projects = new TestProject[projectPaths.Length];
+        var projects = new FileTestProject[projectPaths.Length];
         for (int i = 0; i < projectPaths.Length; i++)
         {
-            projects[i] = new TestProject
+            projects[i] = new FileTestProject
             {
                 Path = projectPaths[i],
             };

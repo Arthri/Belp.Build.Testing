@@ -24,11 +24,7 @@ public class MSBuildTest
                     ArgumentException.ThrowIfNullOrEmpty(sampleName);
                     ArgumentException.ThrowIfNullOrEmpty(callerMemberName);
 
-                    return new TestProjectInstance(
-                        callerMemberName,
-                        TestSamplesManager.TestSamples[sampleName].DefaultProject,
-                        logger
-                    );
+                    return TestSamplesManager.TestSamples[sampleName].DefaultProject.Clone(callerMemberName, logger);
                 }
 
                 public TestProjectInstance Samples(string sampleName, string projectName, [CallerMemberName] string? callerMemberName = null)
@@ -39,32 +35,19 @@ public class MSBuildTest
 
                     TestSample sample = TestSamplesManager.TestSamples[sampleName];
                     TestProject? project = null;
-                    if (projectName.Contains('.'))
+                    IEnumerable<TestProject> matchingProjects = sample.Projects.Where(p => p.Name.StartsWith(projectName));
+                    using IEnumerator<TestProject> enumerator = matchingProjects.GetEnumerator();
+                    if (!enumerator.MoveNext())
                     {
-                        project = sample.Projects.FirstOrDefault(p => Path.GetFileName(p.Path) == projectName);
-                    }
-                    if (project is null)
-                    {
-                        IEnumerable<TestProject> matchingProjects = sample.Projects.Where(p => Path.GetFileNameWithoutExtension(p.Path) == projectName);
-                        using IEnumerator<TestProject> enumerator = matchingProjects.GetEnumerator();
-                        if (!enumerator.MoveNext())
-                        {
-                            throw new InvalidOperationException($"Project with the name {projectName} not found.");
-                        }
-
-                        project = enumerator.Current;
-
-                        if (enumerator.MoveNext())
-                        {
-                            throw new InvalidOperationException($"More than one project with the name {projectName}.");
-                        }
+                        throw new InvalidOperationException($"Project with the name {projectName} not found.");
                     }
 
-                    return new TestProjectInstance(
-                        callerMemberName,
-                        project,
-                        logger
-                    );
+                    project = enumerator.Current;
+
+                    return enumerator.MoveNext()
+                        ? throw new InvalidOperationException($"More than one project with the name {projectName}.")
+                        : project.Clone(callerMemberName, logger)
+                        ;
                 }
             }
 

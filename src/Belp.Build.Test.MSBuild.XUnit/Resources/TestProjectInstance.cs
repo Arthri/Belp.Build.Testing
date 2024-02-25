@@ -4,136 +4,91 @@ using Xunit.Abstractions;
 namespace Belp.Build.Test.MSBuild.XUnit.Resources;
 
 /// <summary>
-/// Provides functions for cloning and using test projects.
+/// Provides functions for using test projects.
 /// </summary>
-public readonly struct TestProjectInstance
+public abstract class TestProjectInstance
 {
     /// <summary>
     /// Gets the original test project.
     /// </summary>
-    public TestProject Project { get; }
+    public abstract TestProject Project { get; }
+
+    private readonly Lazy<ProjectInstance> _projectInstance;
 
     /// <summary>
-    /// Gets the clone's name.
+    /// Gets the project instance used for building.
     /// </summary>
-    public string InstanceName { get; }
+    public ProjectInstance ProjectInstance => _projectInstance.Value;
 
     /// <summary>
-    /// Gets the clone's location.
+    /// Gets the name of the clone or instance.
     /// </summary>
-    public string CacheLocation { get; }
+    public abstract string InstanceName { get; }
 
     /// <summary>
     /// Gets the logger used by builds.
     /// </summary>
-    public ITestOutputHelper Logger { get; }
+    public abstract ITestOutputHelper Logger { get; }
+
+    /// <inheritdoc cref="Build(out XUnitMSBuildLoggerAdapter, Action{BuildParameters}?, Action{BuildRequestData}?)" />
+    public BuildResult Build(Action<BuildParameters>? configureParameters = null, Action<BuildRequestData>? configureRequestData = null)
+    {
+        return Build(out _, configureParameters, configureRequestData);
+    }
 
     /// <summary>
-    /// Initializes a new instance of <see cref="TestProjectInstance"/> with the specified <paramref name="instanceName"/> and the specified <paramref name="logger"/> for the specified <paramref name="project"/>.
+    /// Builds the project instance.
     /// </summary>
-    /// <param name="instanceName">The clone's name.</param>
-    /// <param name="project">The project to based the clone off.</param>
-    /// <param name="logger">The logger to be used by builds.</param>
-    public TestProjectInstance(string instanceName, TestProject project, ITestOutputHelper logger)
+    /// <param name="logger">The logger used during the build.</param>
+    /// <param name="configureParameters">An optional action which configures the assembled <see cref="BuildParameters"/> before building.</param>
+    /// <param name="configureRequestData">An optional action which configures the assembled <see cref="BuildRequestData"/> before building.</param>
+    /// <returns>The build result.</returns>
+    public BuildResult Build(out XUnitMSBuildLoggerAdapter logger, Action<BuildParameters>? configureParameters = null, Action<BuildRequestData>? configureRequestData = null)
     {
-        ArgumentException.ThrowIfNullOrEmpty(instanceName);
-        ArgumentNullException.ThrowIfNull(project);
-        ArgumentNullException.ThrowIfNull(logger);
+        var buildParameters = new BuildParametersWithDefaults(logger = new XUnitMSBuildLoggerAdapter(Logger));
+        var buildRequestData = new BuildRequestData(ProjectInstance, ["Restore", "Build"]);
+        configureParameters?.Invoke(buildParameters);
+        configureRequestData?.Invoke(buildRequestData);
 
+        return BuildManager.DefaultBuildManager.Build(
+            buildParameters,
+            buildRequestData
+        );
+    }
+
+    /// <summary>
+    /// Initializes a new instance of <see cref="TestProjectInstance"/>.
+    /// </summary>
+    public TestProjectInstance()
+    {
+        _projectInstance = new(Project.Project.CreateProjectInstance, true);
+    }
+}
+
+/// <inheritdoc />
+/// <typeparam name="T">The type of the test project.</typeparam>
+public abstract class TestProjectInstance<T> : TestProjectInstance
+    where T : TestProject
+{
+    /// <inheritdoc />
+    public override T Project { get; }
+
+    /// <inheritdoc />
+    public override string InstanceName { get; }
+
+    /// <inheritdoc />
+    public override ITestOutputHelper Logger { get; }
+
+    /// <summary>
+    /// Initializes a new instance of <see cref="TestProjectInstance{T}" /> for the specified <paramref name="project" /> with the specified <paramref name="instanceName" /> and <paramref name="logger" />.
+    /// </summary>
+    /// <param name="project">The project which the instance is a clone of.</param>
+    /// <param name="instanceName">The name of the instance.</param>
+    /// <param name="logger">The instance's logger.</param>
+    public TestProjectInstance(T project, string instanceName, ITestOutputHelper logger)
+    {
         Project = project;
         InstanceName = instanceName;
-        CacheLocation = Path.Combine(TestPaths.ProjectCache, instanceName);
         Logger = logger;
-    }
-
-    /// <summary>
-    /// Builds the cloned project.
-    /// </summary>
-    /// <param name="buildParameters">Optional override to the build parameters.</param>
-    /// <param name="buildRequestData">Optional override to the build request data.</param>
-    /// <returns>The build result.</returns>
-    public BuildResult Build(BuildParameters? buildParameters = null, BuildRequestData? buildRequestData = null)
-    {
-        if (!Directory.Exists(CacheLocation))
-        {
-            _ = Clone();
-        }
-
-        return BuildManager.DefaultBuildManager.Build(
-            buildParameters ?? new BuildParametersWithDefaults(new XUnitMSBuildLoggerAdapter(Logger)),
-            buildRequestData ?? new BuildRequestData(
-                CacheLocation,
-                new Dictionary<string, string>(),
-                null,
-                ["Restore", "Build"],
-                null
-            )
-        );
-    }
-
-    /// <summary>
-    /// Builds the cloned project.
-    /// </summary>
-    /// <param name="buildParameters">Optional override to the build parameters.</param>
-    /// <param name="globalProperties"><inheritdoc cref="BuildRequestData(string, IDictionary{string, string}, string, string[], HostServices, BuildRequestDataFlags, RequestedProjectState)" path="/param[@name='globalProperties']" /></param>
-    /// <param name="targetsToBuild"><inheritdoc cref="BuildRequestData(string, IDictionary{string, string}, string, string[], HostServices, BuildRequestDataFlags, RequestedProjectState)" path="/param[@name='targetsToBuild']" /></param>
-    /// <param name="buildRequestDataFlags"><inheritdoc cref="BuildRequestData(string, IDictionary{string, string}, string, string[], HostServices, BuildRequestDataFlags, RequestedProjectState)" path="/param[@name='buildRequestDataFlags']" /></param>
-    /// <param name="toolsVersion"><inheritdoc cref="BuildRequestData(string, IDictionary{string, string}, string, string[], HostServices, BuildRequestDataFlags, RequestedProjectState)" path="/param[@name='toolsVersion']" /></param>
-    /// <param name="hostServices"><inheritdoc cref="BuildRequestData(string, IDictionary{string, string}, string, string[], HostServices, BuildRequestDataFlags, RequestedProjectState)" path="/param[@name='hostServices']" /></param>
-    /// <returns></returns>
-    public BuildResult Build(
-        BuildParameters? buildParameters = null,
-        Dictionary<string, string>? globalProperties = null,
-        string[]? targetsToBuild = null,
-        BuildRequestDataFlags buildRequestDataFlags = BuildRequestDataFlags.None,
-        string? toolsVersion = null,
-        HostServices? hostServices = null
-    )
-    {
-        if (!Directory.Exists(CacheLocation))
-        {
-            _ = Clone();
-        }
-
-        return BuildManager.DefaultBuildManager.Build(
-            buildParameters ?? new BuildParametersWithDefaults(new XUnitMSBuildLoggerAdapter(Logger)),
-            new BuildRequestData(
-                CacheLocation,
-                globalProperties ?? [],
-                toolsVersion,
-                targetsToBuild ?? ["Restore", "Build"],
-                hostServices,
-                buildRequestDataFlags
-            )
-        );
-    }
-
-    /// <summary>
-    /// Deletes the clone and creates a new clone from <see cref="Project"/>.
-    /// </summary>
-    /// <returns>This instance.</returns>
-    public TestProjectInstance Clone()
-    {
-        _ = Delete();
-
-        string sourceDirectory = Project.RootPath;
-
-        foreach (string file in Directory.GetFiles(sourceDirectory, "*", SearchOption.AllDirectories))
-        {
-            File.Copy(file, Path.Combine(CacheLocation, Path.GetRelativePath(sourceDirectory, file)));
-        }
-
-        return this;
-    }
-
-    /// <summary>
-    /// Deletes the clone.
-    /// </summary>
-    /// <returns>This instance.</returns>
-    public TestProjectInstance Delete()
-    {
-        Directory.Delete(CacheLocation, true);
-
-        return this;
     }
 }
