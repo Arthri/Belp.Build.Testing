@@ -30,7 +30,7 @@ public sealed class FileTestProject : TestProject
             : base(project, instanceName, logger)
         {
             CacheLocation = IOPath.Combine(TestPaths.ProjectCache, instanceName);
-            _project = new(() => MSBuildProject.FromFile(TestProject.Path, new()), true);
+            _project = new(() => MSBuildProject.FromFile(IOPath.Combine(CacheLocation, IOPath.GetRelativePath(TestProject.RootPath, TestProject.Path)), new()), true);
 
             if (!Directory.Exists(CacheLocation))
             {
