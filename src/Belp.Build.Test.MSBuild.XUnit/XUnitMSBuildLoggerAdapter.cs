@@ -1,4 +1,5 @@
-﻿using Microsoft.Build.Framework;
+﻿using Belp.Build.Test.MSBuild.XUnit.ObjectModel;
+using Microsoft.Build.Framework;
 using System.Collections;
 using Xunit.Abstractions;
 

@@ -1,4 +1,5 @@
-﻿using Microsoft.Build.Evaluation;
+﻿using Belp.Build.Test.MSBuild.XUnit.ObjectModel;
+using Microsoft.Build.Evaluation;
 using Microsoft.Build.Execution;
 using Xunit.Abstractions;
 
@@ -25,7 +26,7 @@ public abstract class TestProjectInstance
     public abstract ITestOutputHelper Logger { get; }
 
     /// <inheritdoc cref="Build(out XUnitMSBuildLoggerAdapter, BuildRequestDataFlags?, HostServices?, Action{BuildParameters}?, Action{BuildRequestData}?)" />
-    public BuildResult Build(BuildRequestDataFlags? buildRequestDataFlags = null, HostServices? hostServices = null, Action<BuildParameters>? configureParameters = null, Action<BuildRequestData>? configureRequestData = null)
+    public MSBuildResult Build(BuildRequestDataFlags? buildRequestDataFlags = null, HostServices? hostServices = null, Action<BuildParameters>? configureParameters = null, Action<BuildRequestData>? configureRequestData = null)
     {
         return Build(out _, buildRequestDataFlags, hostServices, configureParameters, configureRequestData);
     }
@@ -39,7 +40,7 @@ public abstract class TestProjectInstance
     /// <param name="configureParameters">An optional action which configures the assembled <see cref="BuildParameters"/> before building.</param>
     /// <param name="configureRequestData">An optional action which configures the assembled <see cref="BuildRequestData"/> before building.</param>
     /// <returns>The build result.</returns>
-    public BuildResult Build(out XUnitMSBuildLoggerAdapter logger, BuildRequestDataFlags? buildRequestDataFlags = null, HostServices? hostServices = null, Action<BuildParameters>? configureParameters = null, Action<BuildRequestData>? configureRequestData = null)
+    public MSBuildResult Build(out XUnitMSBuildLoggerAdapter logger, BuildRequestDataFlags? buildRequestDataFlags = null, HostServices? hostServices = null, Action<BuildParameters>? configureParameters = null, Action<BuildRequestData>? configureRequestData = null)
     {
         // Restore
         {
@@ -58,7 +59,8 @@ public abstract class TestProjectInstance
             configureParameters?.Invoke(buildParameters);
             configureRequestData?.Invoke(buildRequestData);
 
-            return BuildManager.DefaultBuildManager.Build(buildParameters, buildRequestData);
+            BuildResult buildResult = BuildManager.DefaultBuildManager.Build(buildParameters, buildRequestData);
+            return new MSBuildResult(logger, buildResult, buildResult.ProjectStateAfterBuild);
         }
     }
 
