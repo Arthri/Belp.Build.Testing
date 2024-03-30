@@ -1,6 +1,6 @@
 ﻿using Microsoft.Build.Execution;
 
-namespace Belp.Build.Test.MSBuild.XUnit.ObjectModel;
+namespace Belp.Build.Test.MSBuild.ObjectModel;
 
 /// <summary>
 /// Represents an item declared inside an MSBuild project.

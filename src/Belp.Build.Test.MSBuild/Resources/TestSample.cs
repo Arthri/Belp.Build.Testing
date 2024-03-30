@@ -1,4 +1,4 @@
-﻿namespace Belp.Build.Test.MSBuild.XUnit.Resources;
+﻿namespace Belp.Build.Test.MSBuild.Resources;
 
 /// <summary>
 /// Represents a set of data used for testing.

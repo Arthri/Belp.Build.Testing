@@ -1,4 +1,4 @@
-﻿namespace Belp.Build.Test.MSBuild.XUnit.ObjectModel;
+﻿namespace Belp.Build.Test.MSBuild.ObjectModel;
 
 /// <summary>
 /// Represents a portion of text.

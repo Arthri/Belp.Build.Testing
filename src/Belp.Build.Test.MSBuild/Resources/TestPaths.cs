@@ -1,4 +1,4 @@
-﻿namespace Belp.Build.Test.MSBuild.XUnit.Resources;
+﻿namespace Belp.Build.Test.MSBuild.Resources;
 
 /// <summary>
 /// Provides common paths used by <see cref="TestSamplesManager"/>.

@@ -1,6 +1,6 @@
 ﻿using Xunit.Abstractions;
 
-namespace Belp.Build.Test.MSBuild.XUnit.Resources;
+namespace Belp.Build.Test.MSBuild.Resources;
 
 /// <summary>
 /// Provides an interface for projects inside test samples.

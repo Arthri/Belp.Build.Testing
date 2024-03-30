@@ -1,7 +1,7 @@
 ﻿using System.IO.Compression;
 using System.Xml.Linq;
 
-namespace Belp.Build.Test.MSBuild.XUnit.Resources;
+namespace Belp.Build.Test.MSBuild.Resources;
 
 /// <summary>
 /// Manages packages under test.

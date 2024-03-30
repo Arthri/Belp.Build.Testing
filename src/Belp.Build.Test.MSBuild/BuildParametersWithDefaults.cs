@@ -2,7 +2,7 @@
 using Microsoft.Build.Framework;
 using System.Collections;
 
-namespace Belp.Build.Test.MSBuild.XUnit;
+namespace Belp.Build.Test.MSBuild;
 
 /// <summary>
 /// Inherits from <see cref="BuildParameters"/> and sets additional default values.

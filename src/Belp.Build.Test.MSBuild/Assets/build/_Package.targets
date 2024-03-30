@@ -38,7 +38,7 @@
 
 
   <PropertyGroup>
-    <DefineConstants Condition="'$(BelpTestUseMSBuildModuleInitializer)' != 'false'">$(DefineConstants);BELP_BUILD_TEST_MSBUILD_XUNIT_MODULE_INITIALIZER</DefineConstants>
+    <DefineConstants Condition="'$(BelpTestUseMSBuildModuleInitializer)' != 'false'">$(DefineConstants);BELP_BUILD_TEST_MSBUILD_MODULE_INITIALIZER</DefineConstants>
   </PropertyGroup>
 
 </Project>

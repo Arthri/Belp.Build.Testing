@@ -3,7 +3,7 @@ using Xunit.Abstractions;
 using IOPath = System.IO.Path;
 using MSBuildProject = Microsoft.Build.Evaluation.Project;
 
-namespace Belp.Build.Test.MSBuild.XUnit.Resources;
+namespace Belp.Build.Test.MSBuild.Resources;
 
 /// <summary>
 /// Represents a <see cref="TestProject"/> backed by a file.

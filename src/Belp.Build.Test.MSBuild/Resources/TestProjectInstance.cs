@@ -1,9 +1,9 @@
-﻿using Belp.Build.Test.MSBuild.XUnit.ObjectModel;
+﻿using Belp.Build.Test.MSBuild.ObjectModel;
 using Microsoft.Build.Evaluation;
 using Microsoft.Build.Execution;
 using Xunit.Abstractions;
 
-namespace Belp.Build.Test.MSBuild.XUnit.Resources;
+namespace Belp.Build.Test.MSBuild.Resources;
 
 /// <summary>
 /// Provides functions for using test projects.

@@ -1,12 +1,12 @@
 ﻿using Belp.Build.Test.MSBuild.XUnit.Resources;
 using Xunit.Abstractions;
 
-namespace Belp.Build.Test.MSBuild.XUnit;
+namespace Belp.Build.Test.MSBuild;
 
 /// <summary>
 /// Provides the boilerplate for testing MSBuild projects.
 /// </summary>
-public class MSBuildTest
+public class MSBuildTestsContainer
 {
     /// <summary>
     /// A facade which provides access to the application's resources.
@@ -90,10 +90,10 @@ public class MSBuildTest
     public TestDataFacade Get => new(Logger);
 
     /// <summary>
-    /// Initializes a new instance of <see cref="MSBuildTest"/> with the specified <paramref name="logger"/>.
+    /// Initializes a new instance of <see cref="MSBuildTestsContainer"/> with the specified <paramref name="logger"/>.
     /// </summary>
     /// <param name="logger">The logger to log events to.</param>
-    public MSBuildTest(ITestOutputHelper logger)
+    public MSBuildTestsContainer(ITestOutputHelper logger)
     {
         Logger = logger;
     }

@@ -1,9 +1,9 @@
-﻿using Belp.Build.Test.MSBuild.XUnit.ObjectModel;
+﻿using Belp.Build.Test.MSBuild.ObjectModel;
 using Microsoft.Build.Framework;
 using System.Collections;
 using Xunit.Abstractions;
 
-namespace Belp.Build.Test.MSBuild.XUnit;
+namespace Belp.Build.Test.MSBuild;
 
 /// <summary>
 /// Provides an adapter for <see cref="ITestOutputHelper"/> to <see cref="ILogger"/>.
