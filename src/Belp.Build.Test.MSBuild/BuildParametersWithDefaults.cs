@@ -1,4 +1,5 @@
-﻿using Microsoft.Build.Execution;
+﻿using Belp.Build.Test.MSBuild.Loggers;
+using Microsoft.Build.Execution;
 using Microsoft.Build.Framework;
 using System.Collections;
 
@@ -12,7 +13,7 @@ internal sealed class BuildParametersWithDefaults : BuildParameters
     /// <summary>
     /// Initializes a new instance of <see cref="BuildParameters"/> with additional default values.
     /// </summary>
-    public BuildParametersWithDefaults(XUnitMSBuildLoggerAdapter logger)
+    public BuildParametersWithDefaults(XUnitLogger logger)
     {
         EnableNodeReuse = true;
         Loggers = Loggers == null

@@ -1,4 +1,4 @@
-﻿using Belp.Build.Test.MSBuild.ObjectModel;
+﻿using Belp.Build.Test.MSBuild.Loggers;
 using Microsoft.Build.Evaluation;
 using Microsoft.Build.Execution;
 using Xunit.Abstractions;
@@ -25,7 +25,7 @@ public abstract class TestProjectInstance
     /// </summary>
     public abstract ITestOutputHelper Logger { get; }
 
-    /// <inheritdoc cref="Build(out XUnitMSBuildLoggerAdapter, BuildRequestDataFlags?, HostServices?, Action{BuildParameters}?, Action{BuildRequestData}?)" />
+    /// <inheritdoc cref="Build(out XUnitLogger, BuildRequestDataFlags?, HostServices?, Action{BuildParameters}?, Action{BuildRequestData}?)" />
     public MSBuildResult Build(BuildRequestDataFlags? buildRequestDataFlags = null, HostServices? hostServices = null, Action<BuildParameters>? configureParameters = null, Action<BuildRequestData>? configureRequestData = null)
     {
         return Build(out _, buildRequestDataFlags, hostServices, configureParameters, configureRequestData);
@@ -40,11 +40,11 @@ public abstract class TestProjectInstance
     /// <param name="configureParameters">An optional action which configures the assembled <see cref="BuildParameters"/> before building.</param>
     /// <param name="configureRequestData">An optional action which configures the assembled <see cref="BuildRequestData"/> before building.</param>
     /// <returns>The build result.</returns>
-    public MSBuildResult Build(out XUnitMSBuildLoggerAdapter logger, BuildRequestDataFlags? buildRequestDataFlags = null, HostServices? hostServices = null, Action<BuildParameters>? configureParameters = null, Action<BuildRequestData>? configureRequestData = null)
+    public MSBuildResult Build(out XUnitLogger logger, BuildRequestDataFlags? buildRequestDataFlags = null, HostServices? hostServices = null, Action<BuildParameters>? configureParameters = null, Action<BuildRequestData>? configureRequestData = null)
     {
         // Restore
         {
-            var buildParameters = new BuildParametersWithDefaults(new XUnitMSBuildLoggerAdapter(Logger));
+            var buildParameters = new BuildParametersWithDefaults(new XUnitLogger(Logger));
             var buildRequestData = new BuildRequestData(Project.CreateProjectInstance(), ["Restore"]);
 
             _ = BuildManager.DefaultBuildManager.Build(buildParameters, buildRequestData);
@@ -52,7 +52,7 @@ public abstract class TestProjectInstance
 
         // Build
         {
-            var buildParameters = new BuildParametersWithDefaults(logger = new XUnitMSBuildLoggerAdapter(Logger));
+            var buildParameters = new BuildParametersWithDefaults(logger = new XUnitLogger(Logger));
             Project.MarkDirty();
             Project.ReevaluateIfNecessary();
             var buildRequestData = new BuildRequestData(Project.CreateProjectInstance(), ["Build"], hostServices, buildRequestDataFlags ?? BuildRequestDataFlags.None);

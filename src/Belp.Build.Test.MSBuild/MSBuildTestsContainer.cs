@@ -1,4 +1,4 @@
-﻿using Belp.Build.Test.MSBuild.XUnit.Resources;
+﻿using Belp.Build.Test.MSBuild.Resources;
 using Xunit.Abstractions;
 
 namespace Belp.Build.Test.MSBuild;
