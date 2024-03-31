@@ -1,5 +1,4 @@
-﻿using Belp.Build.Test.MSBuild.ObjectModel;
-using Microsoft.Build.Framework;
+﻿using Microsoft.Build.Framework;
 using Microsoft.Extensions.Logging;
 using System.Collections;
 using ILogger = Microsoft.Build.Framework.ILogger;

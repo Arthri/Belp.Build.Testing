@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 
-namespace Belp.Build.Test.MSBuild.ObjectModel;
+namespace Belp.Build.Test.MSBuild;
 
 /// <summary>
 /// Represents an MSBuild diagnostic.

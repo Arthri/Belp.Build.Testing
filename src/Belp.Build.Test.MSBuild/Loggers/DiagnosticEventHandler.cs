@@ -1,6 +1,4 @@
-﻿using Belp.Build.Test.MSBuild.ObjectModel;
-
-namespace Belp.Build.Test.MSBuild.Loggers;
+﻿namespace Belp.Build.Test.MSBuild.Loggers;
 
 /// <summary>
 /// Represents a method that will handle a diagnostic event.
