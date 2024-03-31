@@ -1,6 +1,8 @@
 ﻿using Belp.Build.Test.MSBuild.ObjectModel;
 using Microsoft.Build.Framework;
+using Microsoft.Extensions.Logging;
 using System.Collections;
+using ILogger = Microsoft.Build.Framework.ILogger;
 
 namespace Belp.Build.Test.MSBuild.Loggers;
 
@@ -55,9 +57,6 @@ public sealed class MSBuildDiagnosticLogger : ILogger
     private IEventSource _eventSource = null!;
 
     /// <inheritdoc />
-    public LoggerVerbosity Verbosity { get; set; } = LoggerVerbosity.Minimal;
-
-    /// <inheritdoc />
     string? ILogger.Parameters
     {
         get => null;
@@ -66,6 +65,18 @@ public sealed class MSBuildDiagnosticLogger : ILogger
         {
         }
     }
+
+    LoggerVerbosity ILogger.Verbosity
+    {
+        get => LogLevel.ToLoggerVerbosity();
+
+        set => LogLevel = value.ToLogLevel();
+    }
+
+    /// <summary>
+    /// Gets or sets the minimum level of logged messages.
+    /// </summary>
+    public LogLevel LogLevel { get; set; } = LogLevel.Information;
 
 
 
@@ -138,7 +149,7 @@ public sealed class MSBuildDiagnosticLogger : ILogger
     private void OnErrorRaised(object sender, BuildErrorEventArgs e)
     {
         var diagnostic = new Diagnostic(
-            Diagnostic.SeverityLevel.Error,
+            LogLevel.Error,
             e.Code,
             e.Message,
             e.File,
@@ -162,7 +173,7 @@ public sealed class MSBuildDiagnosticLogger : ILogger
     private void OnWarningRaised(object sender, BuildWarningEventArgs e)
     {
         var diagnostic = new Diagnostic(
-            Diagnostic.SeverityLevel.Warning,
+            LogLevel.Warning,
             e.Code,
             e.Message,
             e.File,
@@ -189,9 +200,9 @@ public sealed class MSBuildDiagnosticLogger : ILogger
         var diagnostic = new Diagnostic(
             e.Importance switch
             {
-                MessageImportance.High => Diagnostic.SeverityLevel.Informational,
-                MessageImportance.Normal => Diagnostic.SeverityLevel.Verbose,
-                MessageImportance.Low => Diagnostic.SeverityLevel.Diagnostic,
+                MessageImportance.High => LogLevel.Information,
+                MessageImportance.Normal => LogLevel.Debug,
+                MessageImportance.Low => LogLevel.Trace,
                 var importance => throw new NotSupportedException($"Unsupported importance level {importance}"),
             },
             e.Code,

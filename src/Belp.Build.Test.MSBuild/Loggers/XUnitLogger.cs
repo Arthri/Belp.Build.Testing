@@ -1,6 +1,8 @@
 ﻿using Belp.Build.Test.MSBuild.ObjectModel;
 using Microsoft.Build.Framework;
+using Microsoft.Extensions.Logging;
 using Xunit.Abstractions;
+using ILogger = Microsoft.Build.Framework.ILogger;
 
 namespace Belp.Build.Test.MSBuild.Loggers;
 
@@ -22,8 +24,17 @@ public class XUnitLogger : ITestOutputHelper, ILogger
         }
     }
 
-    /// <inheritdoc />
-    public LoggerVerbosity Verbosity { get; set; } = LoggerVerbosity.Normal;
+    LoggerVerbosity ILogger.Verbosity
+    {
+        get => Verbosity.ToLoggerVerbosity();
+
+        set => Verbosity = value.ToLogLevel();
+    }
+
+    /// <summary>
+    /// Gets or sets the minimum level of logged messages.
+    /// </summary>
+    public LogLevel Verbosity { get; set; } = LogLevel.Information;
 
 
 
@@ -116,7 +127,7 @@ public class XUnitLogger : ITestOutputHelper, ILogger
     /// <param name="diagnostic">The diagnostic that was captured.</param>
     protected virtual void OnErrorRaised(Diagnostic diagnostic)
     {
-        if (Verbosity >= LoggerVerbosity.Quiet)
+        if (diagnostic.Severity >= Verbosity)
         {
             WriteLine(diagnostic.ToString());
         }
@@ -128,7 +139,7 @@ public class XUnitLogger : ITestOutputHelper, ILogger
     /// <param name="diagnostic">The diagnostic that was captured.</param>
     protected virtual void OnWarningRaised(Diagnostic diagnostic)
     {
-        if (Verbosity >= LoggerVerbosity.Minimal)
+        if (diagnostic.Severity >= Verbosity)
         {
             WriteLine(diagnostic.ToString());
         }
@@ -141,15 +152,7 @@ public class XUnitLogger : ITestOutputHelper, ILogger
     /// <exception cref="NotSupportedException">The message has an unsupported importance level.</exception>
     protected virtual void OnMessageRaised(Diagnostic diagnostic)
     {
-        if (
-            Verbosity switch
-            {
-                LoggerVerbosity.Diagnostic => diagnostic.Severity <= Diagnostic.SeverityLevel.Diagnostic,
-                LoggerVerbosity.Detailed => diagnostic.Severity <= Diagnostic.SeverityLevel.Verbose,
-                LoggerVerbosity.Quiet or LoggerVerbosity.Minimal or LoggerVerbosity.Normal => diagnostic.Severity <= Diagnostic.SeverityLevel.Informational,
-                _ => throw new NotSupportedException(),
-            }
-        )
+        if (diagnostic.Severity >= Verbosity)
         {
             WriteLine(diagnostic.ToString());
         }
