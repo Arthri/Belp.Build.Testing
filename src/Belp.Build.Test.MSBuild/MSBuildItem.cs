@@ -1,6 +1,6 @@
 ﻿using Microsoft.Build.Execution;
 
-namespace Belp.Build.Test.MSBuild.ObjectModel;
+namespace Belp.Build.Test.MSBuild;
 
 /// <summary>
 /// Represents an item declared inside an MSBuild project.

@@ -4,7 +4,7 @@ using System.Collections;
 using System.Collections.Frozen;
 using System.Collections.ObjectModel;
 
-namespace Belp.Build.Test.MSBuild.ObjectModel;
+namespace Belp.Build.Test.MSBuild;
 
 /// <summary>
 /// A facade which encapsulates the output of MSBuild to provide a more consistent and usable API.
