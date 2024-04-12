@@ -49,7 +49,7 @@ internal static partial class TestSamplesManager
         _ = Directory.CreateDirectory(TestPaths.PackagesDirectory);
         string packages = string.Join('\n',
             TestPackagesManager
-            .Packages
+            .PackagesList
             .Select(static p => $"""    <PackageReference Include="{p.ID}" Version="{p.Version}" />""")
         );
         File.WriteAllText(

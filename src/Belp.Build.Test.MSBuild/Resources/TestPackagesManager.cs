@@ -6,13 +6,20 @@ namespace Belp.Build.Test.MSBuild.Resources;
 /// <summary>
 /// Manages packages under test.
 /// </summary>
-internal static class TestPackagesManager
+public static class TestPackagesManager
 {
-    public static List<TestPackage> Packages;
+    internal static List<TestPackage> PackagesList;
+
+    private static readonly Dictionary<string, TestPackage> InternalPackages;
+
+    /// <summary>
+    /// Gets a dictionary which maps package IDs to package data.
+    /// </summary>
+    public static IReadOnlyDictionary<string, TestPackage> Packages => InternalPackages.AsReadOnly();
 
     static TestPackagesManager()
     {
-        Packages = [];
+        var packagesList = new List<TestPackage>();
 
         string[] packageFiles = Directory.GetFiles(TestPaths.TestPackages, "*.nupkg");
         foreach (string packageFile in packageFiles)
@@ -48,12 +55,15 @@ internal static class TestPackagesManager
                 throw new InvalidOperationException($"""The package version of {packageFile} "{packageVersion.Value}" is not valid.""");
             }
 
-            Packages.Add(new TestPackage(packageID.Value, packageVersion.Value));
+            packagesList.Add(new TestPackage(packageID.Value, packageVersion.Value));
 
             static bool IsValidValue(string text)
             {
                 return !text.Contains('"') && !text.Contains("<![CDATA[");
             }
         }
+
+        PackagesList = packagesList;
+        InternalPackages = packagesList.ToDictionary(p => p.ID);
     }
 }
