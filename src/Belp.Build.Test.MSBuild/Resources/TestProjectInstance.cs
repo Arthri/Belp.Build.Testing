@@ -1,7 +1,6 @@
 ﻿using Belp.Build.Test.MSBuild.Loggers;
 using Microsoft.Build.Evaluation;
 using Microsoft.Build.Execution;
-using Xunit.Abstractions;
 
 namespace Belp.Build.Test.MSBuild.Resources;
 
@@ -21,30 +20,20 @@ public abstract class TestProjectInstance
     public abstract Project Project { get; }
 
     /// <summary>
-    /// Gets the logger used by builds.
-    /// </summary>
-    public abstract ITestOutputHelper Logger { get; }
-
-    /// <inheritdoc cref="Build(out XUnitLogger, BuildRequestDataFlags?, HostServices?, Action{BuildParameters}?, Action{BuildRequestData}?)" />
-    public MSBuildResult Build(BuildRequestDataFlags? buildRequestDataFlags = null, HostServices? hostServices = null, Action<BuildParameters>? configureParameters = null, Action<BuildRequestData>? configureRequestData = null)
-    {
-        return Build(out _, buildRequestDataFlags, hostServices, configureParameters, configureRequestData);
-    }
-
-    /// <summary>
     /// Builds the project instance.
     /// </summary>
-    /// <param name="logger">The logger used during the build.</param>
     /// <param name="buildRequestDataFlags"><inheritdoc cref="BuildRequestData(ProjectInstance, string[], HostServices, BuildRequestDataFlags)" path="/param[@name='flags']" /></param>
     /// <param name="hostServices"><inheritdoc cref="BuildRequestData(ProjectInstance, string[], HostServices)" path="/param[@name='hostServices']" /></param>
     /// <param name="configureParameters">An optional action which configures the assembled <see cref="BuildParameters"/> before building.</param>
     /// <param name="configureRequestData">An optional action which configures the assembled <see cref="BuildRequestData"/> before building.</param>
     /// <returns>The build result.</returns>
-    public MSBuildResult Build(out XUnitLogger logger, BuildRequestDataFlags? buildRequestDataFlags = null, HostServices? hostServices = null, Action<BuildParameters>? configureParameters = null, Action<BuildRequestData>? configureRequestData = null)
+    public MSBuildResult Build(BuildRequestDataFlags? buildRequestDataFlags = null, HostServices? hostServices = null, Action<BuildParameters>? configureParameters = null, Action<BuildRequestData>? configureRequestData = null)
     {
+        var logger = new MSBuildDiagnosticLogger();
+
         // Restore
         {
-            var buildParameters = new BuildParametersWithDefaults(new XUnitLogger(Logger));
+            var buildParameters = new BuildParametersWithDefaults(logger);
             var buildRequestData = new BuildRequestData(Project.CreateProjectInstance(), ["Restore"]);
 
             _ = BuildManager.DefaultBuildManager.Build(buildParameters, buildRequestData);
@@ -52,7 +41,7 @@ public abstract class TestProjectInstance
 
         // Build
         {
-            var buildParameters = new BuildParametersWithDefaults(logger = new XUnitLogger(Logger));
+            var buildParameters = new BuildParametersWithDefaults(logger);
             Project.MarkDirty();
             Project.ReevaluateIfNecessary();
             var buildRequestData = new BuildRequestData(Project.CreateProjectInstance(), ["Build"], hostServices, buildRequestDataFlags ?? BuildRequestDataFlags.None);
@@ -80,17 +69,12 @@ public abstract class TestProjectInstance<T> : TestProjectInstance
     /// <inheritdoc />
     public sealed override T TestProject { get; }
 
-    /// <inheritdoc />
-    public sealed override ITestOutputHelper Logger { get; }
-
     /// <summary>
-    /// Initializes a new instance of <see cref="TestProjectInstance{T}" /> for the specified <paramref name="project" /> with the specified <paramref name="logger" />.
+    /// Initializes a new instance of <see cref="TestProjectInstance{T}" /> for the specified <paramref name="project" />.
     /// </summary>
     /// <param name="project">The project which the instance is a clone of.</param>
-    /// <param name="logger">The instance's logger.</param>
-    public TestProjectInstance(T project, ITestOutputHelper logger)
+    public TestProjectInstance(T project)
     {
         TestProject = project;
-        Logger = logger;
     }
 }

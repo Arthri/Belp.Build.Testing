@@ -67,7 +67,7 @@ public sealed class MSBuildResult
     /// <param name="logger">The logger used to capture the build output.</param>
     /// <param name="buildResult">The result of the build.</param>
     /// <param name="projectStateAfterBuild">The state of the project after the build, if present.</param>
-    public MSBuildResult(XUnitLogger logger, BuildResult buildResult, ProjectInstance? projectStateAfterBuild)
+    public MSBuildResult(MSBuildDiagnosticLogger logger, BuildResult buildResult, ProjectInstance? projectStateAfterBuild)
     {
         Warnings = OrderDiagnostics(logger.Warnings);
         Errors = OrderDiagnostics(logger.Errors);

@@ -1,5 +1,4 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using Xunit.Abstractions;
 using IOPath = System.IO.Path;
 using MSBuildProject = Microsoft.Build.Evaluation.Project;
 
@@ -13,7 +12,7 @@ public sealed class FileTestProject : TestProject
     /// <summary>
     /// Represents a test project instance for <see cref="FileTestProject"/>.
     /// </summary>
-    /// <remarks>Instances must be created using <see cref="FileTestProject.Clone(ITestOutputHelper)"/>.</remarks>
+    /// <remarks>Instances must be created using <see cref="FileTestProject.Clone()"/>.</remarks>
     public sealed class Instance : TestProjectInstance<FileTestProject>
     {
         /// <summary>
@@ -26,8 +25,8 @@ public sealed class FileTestProject : TestProject
         /// <inheritdoc />
         public override MSBuildProject Project => _project.Value;
 
-        internal Instance(FileTestProject project, ITestOutputHelper logger)
-            : base(project, logger)
+        internal Instance(FileTestProject project)
+            : base(project)
         {
             CacheLocation = IOPath.Combine(TestPaths.ProjectCache, Guid.NewGuid().ToString("N"));
             _project = new(() => MSBuildProject.FromFile(IOPath.Combine(CacheLocation, IOPath.GetRelativePath(TestProject.RootPath, TestProject.Path)), new()), true);
@@ -110,8 +109,8 @@ public sealed class FileTestProject : TestProject
     }
 
     /// <inheritdoc />
-    public override Instance Clone(ITestOutputHelper logger)
+    public override Instance Clone()
     {
-        return new(this, logger);
+        return new(this);
     }
 }

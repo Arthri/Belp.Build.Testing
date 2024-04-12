@@ -1,6 +1,4 @@
-﻿using Xunit.Abstractions;
-
-namespace Belp.Build.Test.MSBuild.Resources;
+﻿namespace Belp.Build.Test.MSBuild.Resources;
 
 /// <summary>
 /// Provides an interface for projects inside test samples.
@@ -14,9 +12,8 @@ public abstract class TestProject
     public abstract string Name { get; }
 
     /// <summary>
-    /// Creates a new instance of the current project with the specified <paramref name="logger"/>.
+    /// Creates a new instance of the current project.
     /// </summary>
-    /// <param name="logger">The instance's logger.</param>
-    /// <returns>A new instance with the specified <paramref name="logger"/>.</returns>
-    public abstract TestProjectInstance Clone(ITestOutputHelper logger);
+    /// <returns>A new instance of the current project.</returns>
+    public abstract TestProjectInstance Clone();
 }

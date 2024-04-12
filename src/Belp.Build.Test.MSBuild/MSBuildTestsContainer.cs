@@ -1,5 +1,5 @@
 ﻿using Belp.Build.Test.MSBuild.Resources;
-using Xunit.Abstractions;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Belp.Build.Test.MSBuild;
 
@@ -9,33 +9,31 @@ namespace Belp.Build.Test.MSBuild;
 public class MSBuildTestsContainer
 {
     /// <summary>
-    /// A facade which provides access to the application's resources.
+    /// Provides a facade which initiates a request to load something.
     /// </summary>
-    /// <param name="logger">The logger to be used in fetched objects or information.</param>
-    public readonly ref struct TestDataFacade(ITestOutputHelper logger)
+    public readonly ref struct LoadFacade
     {
         /// <summary>
-        /// A facade which provides access to the application's sample projects.
+        /// Provides a facade which initiates a request to load a project.
         /// </summary>
-        /// <param name="logger">The logger to be used in fetched projects.</param>
-        public readonly ref struct TestProjectFacade(ITestOutputHelper logger)
+        public readonly ref struct ProjectFacade
         {
             /// <summary>
-            /// A facade which provides access to the application's sample projects.
+            /// Provides a facade which initiates a request to load a project from somewhere.
             /// </summary>
-            /// <param name="logger">The logger to be used in fetched projects.</param>
-            public readonly ref struct ProjectSourceFacade(ITestOutputHelper logger)
+            public readonly ref struct FromFacade
             {
                 /// <summary>
                 /// Fetches the default project of the sample with the specified <paramref name="sampleName"/>.
                 /// </summary>
                 /// <param name="sampleName">The name of the sample.</param>
                 /// <returns>The fetched project.</returns>
+                [SuppressMessage("Performance", "CA1822:Mark members as static", Justification = "The member is intentionally declared on the instance so as to facilitate the fluent API.")]
                 public TestProjectInstance Samples(string sampleName)
                 {
                     ArgumentException.ThrowIfNullOrEmpty(sampleName);
 
-                    return TestSamplesManager.TestSamples[sampleName].DefaultProject.Clone(logger);
+                    return TestSamplesManager.TestSamples[sampleName].DefaultProject.Clone();
                 }
 
                 /// <summary>
@@ -44,6 +42,7 @@ public class MSBuildTestsContainer
                 /// <param name="sampleName">The name of the sample.</param>
                 /// <param name="projectName">The name of the project to fetch.</param>
                 /// <returns>The fetched project.</returns>
+                [SuppressMessage("Performance", "CA1822:Mark members as static", Justification = "The member is intentionally declared on the instance so as to facilitate the fluent API.")]
                 public TestProjectInstance Samples(string sampleName, string projectName)
                 {
                     ArgumentException.ThrowIfNullOrEmpty(sampleName);
@@ -62,39 +61,27 @@ public class MSBuildTestsContainer
 
                     return enumerator.MoveNext()
                         ? throw new InvalidOperationException($"More than one project with the name {projectName}.")
-                        : project.Clone(logger)
+                        : project.Clone()
                         ;
                 }
             }
 
             /// <summary>
-            /// Gets a facade which fetches projects from the application's resources.
+            /// Gets a facade which initiates a request to load a project from somewhere.
             /// </summary>
-            public ProjectSourceFacade From => new(logger);
+            [SuppressMessage("Performance", "CA1822:Mark members as static", Justification = "The member is intentionally declared on the instance so as to facilitate the fluent API.")]
+            public FromFacade From => new();
         }
 
         /// <summary>
-        /// Gets a facade which fetches projects from the application's resources.
+        /// Gets a facade which initiates a request to load a project.
         /// </summary>
-        public TestProjectFacade Project => new(logger);
+        [SuppressMessage("Performance", "CA1822:Mark members as static", Justification = "The member is intentionally declared on the instance so as to facilitate the fluent API.")]
+        public ProjectFacade Project => new();
     }
 
     /// <summary>
-    /// Gets the logger used by the test.
+    /// Gets a facade which initiates a request to load something.
     /// </summary>
-    public ITestOutputHelper Logger { get; }
-
-    /// <summary>
-    /// Gets a facade which fetches objects or information from the application's resources.
-    /// </summary>
-    public TestDataFacade Get => new(Logger);
-
-    /// <summary>
-    /// Initializes a new instance of <see cref="MSBuildTestsContainer"/> with the specified <paramref name="logger"/>.
-    /// </summary>
-    /// <param name="logger">The logger to log events to.</param>
-    public MSBuildTestsContainer(ITestOutputHelper logger)
-    {
-        Logger = logger;
-    }
+    public static LoadFacade Load => new();
 }
