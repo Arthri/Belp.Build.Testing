@@ -6,7 +6,7 @@ namespace Belp.Build.Test.MSBuild;
 /// <summary>
 /// Provides the boilerplate for testing MSBuild projects.
 /// </summary>
-public class MSBuildTestsContainer
+public class MSBuildTest
 {
     /// <summary>
     /// Provides a facade which initiates a request to load something.
