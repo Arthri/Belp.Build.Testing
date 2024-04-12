@@ -3,7 +3,7 @@
 /// <summary>
 /// Manages the test projects and test caches.
 /// </summary>
-public static partial class TestSamplesManager
+internal static partial class TestSamplesManager
 {
     private static readonly Dictionary<string, TestSample> InternalTestSamples;
 
