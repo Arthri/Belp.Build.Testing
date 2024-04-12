@@ -38,7 +38,6 @@
     <PackageReference Include="Microsoft.Build" Version="17.6.3" ExcludeAssets="runtime" />
     <PackageReference Include="Microsoft.Build.Locator" Version="1.5.5" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.1" />
-    <PackageReference Include="xunit.abstractions" Version="2.0.3" />
   </ItemGroup>
 
 
