@@ -64,6 +64,18 @@ public class MSBuildTest
                         : project.Clone()
                         ;
                 }
+
+                /// <summary>
+                /// Loads the project from the XML in the specified <paramref name="contents"/>.
+                /// </summary>
+                /// <param name="name">The project's name including its file extension.</param>
+                /// <param name="contents">The project's contents in XML.</param>
+                /// <returns>A project loaded from the specified <paramref name="contents"/>.</returns>
+                [SuppressMessage("Performance", "CA1822:Mark members as static", Justification = "The member is intentionally declared on the instance so as to facilitate the fluent API.")]
+                public TestProjectInstance String(string name, string contents)
+                {
+                    return new StringTestProject(name, contents).Clone();
+                }
             }
 
             /// <summary>
