@@ -30,7 +30,8 @@ public static class TestPaths
     /// Gets the temporary directory where all caches are located.
     /// </summary>
     public static string TempRoot { get; } = Path.Combine(
-        Path.GetTempPath(),
+        Environment.CurrentDirectory,
+        "test_artifacts",
         Guid.NewGuid().ToString("N")
     );
 
