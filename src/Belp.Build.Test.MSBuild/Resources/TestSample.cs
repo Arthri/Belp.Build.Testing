@@ -39,7 +39,7 @@ public sealed class TestSample
 
         if (projectPaths.Length == 0)
         {
-            throw new InvalidOperationException($"Directory {rootDirectory} does not contain any project files.");
+            throw new NoSamplesFoundException(rootDirectory);
         }
 
         var projects = new FileTestProject[projectPaths.Length];
@@ -57,8 +57,8 @@ public sealed class TestSample
         TestProject defaultProject;
         do
         {
-            IEnumerable<TestProject> projectsWithSameNameAsParent = projects.Where(p => Path.GetFileNameWithoutExtension(p.Path) == samplesDirectoryName);
-            using IEnumerator<TestProject> enumerator = projectsWithSameNameAsParent.GetEnumerator();
+            IEnumerable<FileTestProject> projectsWithSameNameAsParent = projects.Where(p => Path.GetFileNameWithoutExtension(p.Path) == samplesDirectoryName);
+            using IEnumerator<FileTestProject> enumerator = projectsWithSameNameAsParent.GetEnumerator();
             if (!enumerator.MoveNext())
             {
                 defaultProject = projects.OrderBy(static p => p.Path, StringComparer.InvariantCulture).First();
@@ -69,7 +69,7 @@ public sealed class TestSample
 
             if (enumerator.MoveNext())
             {
-                throw new InvalidOperationException($"Found multiple projects with the same name as {rootDirectory}.");
+                throw new MultipleDefaultProjectsFoundException(rootDirectory, projectsWithSameNameAsParent.Select(p => p.Path));
             }
         }
         while (false);

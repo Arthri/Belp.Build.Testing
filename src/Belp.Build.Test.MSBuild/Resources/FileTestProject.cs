@@ -90,6 +90,13 @@ public sealed class FileTestProject : TestProject
         [MemberNotNull(nameof(RootPath), nameof(_path), nameof(_name))]
         init
         {
+            ArgumentNullException.ThrowIfNull(value);
+
+            if (!IOPath.IsPathRooted(value))
+            {
+                throw new UnrootedProjectPathException(value);
+            }
+
             _path = value;
             RootPath = IOPath.GetDirectoryName(value) ?? throw new InvalidOperationException($"{value}'s parent directory is null.");
             _name = IOPath.GetFileName(Path);

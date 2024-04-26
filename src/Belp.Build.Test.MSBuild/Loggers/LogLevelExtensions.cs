@@ -19,7 +19,7 @@ internal static class LogLevelExtensions
             LogLevel.Error => LoggerVerbosity.Minimal,
             LogLevel.Critical => LoggerVerbosity.Minimal,
             LogLevel.None => LoggerVerbosity.Quiet,
-            _ => throw new NotSupportedException(),
+            var level => throw new NotSupportedException($"Unsupported log level {level}."),
         };
     }
 }

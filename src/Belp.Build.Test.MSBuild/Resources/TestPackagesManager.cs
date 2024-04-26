@@ -29,30 +29,31 @@ public static class TestPackagesManager
             using var zipStream = new FileStream(packageFile, FileMode.Open, FileAccess.Read, FileShare.Read);
             using var zip = new ZipArchive(zipStream);
 
-            ZipArchiveEntry? nuspecEntry = zip.Entries.FirstOrDefault(e => !e.FullName.Contains('/') && !e.FullName.Contains('\\') && e.FullName.EndsWith(".nuspec")) ?? throw new InvalidOperationException($"{packageFile} must have a .nuspec file.");
+            ZipArchiveEntry? nuspecEntry = zip.Entries.FirstOrDefault(e => !e.FullName.Contains('/') && !e.FullName.Contains('\\') && e.FullName.EndsWith(".nuspec")) ?? throw new NuspecNotFoundException(packageFile);
             using Stream nuspecStream = nuspecEntry.Open();
             var nuspec = XDocument.Load(nuspecStream);
+            string nuspecPath = $"{packageFile}@{filename}.nuspec";
             if (nuspec.Root is null)
             {
-                throw new InvalidOperationException($"{packageFile}@{filename}.nuspec must have a root element.");
+                throw new NuspecRootNotFoundException(nuspecPath);
             }
             XNamespace? defaultNamespace = nuspec.Root.GetDefaultNamespace();
             XName GetXName(string name)
             {
                 return defaultNamespace?.GetName(name) ?? name;
             }
-            XElement packageMetadata = nuspec.Root.Element(GetXName("metadata")) ?? throw new InvalidOperationException($"{packageFile}@{filename}.nuspec must have a metadata element inside the root element.");
-            XElement packageID = packageMetadata.Element(GetXName("id")) ?? throw new InvalidOperationException($"{packageFile}@{filename}.nuspec must have an id element under the metadata element.");
-            XElement packageVersion = packageMetadata.Element(GetXName("version")) ?? throw new InvalidOperationException($"{packageFile}@{filename}.nuspec must have a version element under the metadata element.");
+            XElement packageMetadata = nuspec.Root.Element(GetXName("metadata")) ?? throw new NuspecElementNotFoundException(nuspecPath, "/package/metadata");
+            XElement packageID = packageMetadata.Element(GetXName("id")) ?? throw new NuspecElementNotFoundException(nuspecPath, "/package/metadata/id");
+            XElement packageVersion = packageMetadata.Element(GetXName("version")) ?? throw new NuspecElementNotFoundException(nuspecPath, "/package/metadata/version");
 
             if (!IsValidValue(packageID.Value))
             {
-                throw new InvalidOperationException($"""The package ID of {packageFile} "{packageID.Value}" is not valid.""");
+                throw new InvalidPackageIDException(packageFile, packageID.Value);
             }
 
             if (!IsValidValue(packageVersion.Value))
             {
-                throw new InvalidOperationException($"""The package version of {packageFile} "{packageVersion.Value}" is not valid.""");
+                throw new InvalidPackageVersionException(packageFile, packageVersion.Value);
             }
 
             packagesList.Add(new TestPackage(packageID.Value, packageVersion.Value));

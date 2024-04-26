@@ -202,7 +202,7 @@ public sealed class MSBuildDiagnosticLogger : ILogger
                 MessageImportance.High => LogLevel.Information,
                 MessageImportance.Normal => LogLevel.Debug,
                 MessageImportance.Low => LogLevel.Trace,
-                var importance => throw new NotSupportedException($"Unsupported importance level {importance}"),
+                var importance => throw new NotSupportedException($"Unsupported importance level {importance}."),
             },
             e.Code,
             e.Message,

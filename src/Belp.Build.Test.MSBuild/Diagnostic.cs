@@ -25,7 +25,7 @@ public record struct Diagnostic(LogLevel Severity, string Code, string? Message 
             LogLevel.Debug => "DBG",
             LogLevel.Trace => "TRC",
             LogLevel.None => "NON",
-            _ => throw new NotSupportedException(),
+            var level => throw new NotSupportedException($"Unsupported log level {level}."),
         };
         return $"[{levelAbbr}] {Code}{(Message is null ? "" : $": {Message}")} @ {File}({Span}) [{Project}]";
     }

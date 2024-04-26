@@ -4,6 +4,7 @@
 #pragma warning disable
 #nullable disable
 
+using Belp.Build.Test.MSBuild;
 using Microsoft.Build.Locator;
 using System;
 using System.Linq;
@@ -33,12 +34,12 @@ file static class Initializer
             .Where(static i => i.DiscoveryType == DiscoveryType.DotNetSdk)
             .OrderByDescending(static i => i.Version)
             .FirstOrDefault()
-            ?? throw new InvalidOperationException(".NET SDK not found")
+            ?? throw new DotNETSDKNotFoundException()
             ;
 
         if (latestInstance.Version.Major < 5)
         {
-            throw new InvalidOperationException(".NET SDK 5 or higher not found");
+            throw new DotNETSDKVersionNotFoundException(5);
         }
 
         MSBuildLocator.RegisterInstance(latestInstance);

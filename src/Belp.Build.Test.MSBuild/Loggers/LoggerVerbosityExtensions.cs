@@ -17,7 +17,7 @@ internal static class LoggerVerbosityExtensions
             LoggerVerbosity.Normal => LogLevel.Information,
             LoggerVerbosity.Minimal => LogLevel.Warning,
             LoggerVerbosity.Quiet => LogLevel.None,
-            _ => throw new NotSupportedException(),
+            var verbosity => throw new NotSupportedException($"Unsupported logger verbosity {verbosity}."),
         };
     }
 }

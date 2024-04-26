@@ -54,13 +54,13 @@ public class MSBuildTest
                     using IEnumerator<TestProject> enumerator = matchingProjects.GetEnumerator();
                     if (!enumerator.MoveNext())
                     {
-                        throw new InvalidOperationException($"Project with the name {projectName} not found.");
+                        throw new FileNotFoundException($"Project with the name {projectName} not found.");
                     }
 
                     project = enumerator.Current;
 
                     return enumerator.MoveNext()
-                        ? throw new InvalidOperationException($"More than one project with the name {projectName}.")
+                        ? throw new MultipleProjectsFoundException(sampleName, projectName)
                         : project.Clone()
                         ;
                 }
