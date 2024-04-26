@@ -1,4 +1,4 @@
-using Microsoft.Build.Evaluation;
+﻿using Microsoft.Build.Evaluation;
 using System.Diagnostics.CodeAnalysis;
 using IOPath = System.IO.Path;
 
@@ -18,7 +18,7 @@ public sealed class FileTestProject : TestProject
         /// <summary>
         /// Gets the clone's physical location.
         /// </summary>
-        public string CacheLocation { get; }
+        public string Location { get; }
 
         private readonly Lazy<Project> _project;
 
@@ -28,10 +28,10 @@ public sealed class FileTestProject : TestProject
         internal Instance(FileTestProject project)
             : base(project)
         {
-            CacheLocation = IOPath.Combine(TestPaths.ProjectCache, Guid.NewGuid().ToString("N"));
-            _project = new(() => Project.FromFile(IOPath.Combine(CacheLocation, IOPath.GetRelativePath(TestProject.RootPath, TestProject.Path)), new()), true);
+            Location = IOPath.Combine(TestPaths.ProjectCache, Guid.NewGuid().ToString("N"));
+            _project = new(() => Project.FromFile(IOPath.Combine(Location, IOPath.GetRelativePath(TestProject.RootPath, TestProject.Path)), new()), true);
 
-            if (!Directory.Exists(CacheLocation))
+            if (!Directory.Exists(Location))
             {
                 Clone();
             }
@@ -44,7 +44,7 @@ public sealed class FileTestProject : TestProject
         {
             try
             {
-                Directory.Delete(CacheLocation, true);
+                Directory.Delete(Location, true);
             }
             catch (DirectoryNotFoundException)
             {
@@ -62,7 +62,7 @@ public sealed class FileTestProject : TestProject
 
             foreach (string file in Directory.GetFiles(sourceDirectory, "*", SearchOption.AllDirectories))
             {
-                string destinationPath = IOPath.Combine(CacheLocation, IOPath.GetRelativePath(sourceDirectory, file));
+                string destinationPath = IOPath.Combine(Location, IOPath.GetRelativePath(sourceDirectory, file));
                 string? destinationDirectory = IOPath.GetDirectoryName(destinationPath);
                 if (destinationDirectory is not null)
                 {
