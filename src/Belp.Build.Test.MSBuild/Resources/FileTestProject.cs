@@ -1,6 +1,6 @@
+using Microsoft.Build.Evaluation;
 using System.Diagnostics.CodeAnalysis;
 using IOPath = System.IO.Path;
-using MSBuildProject = Microsoft.Build.Evaluation.Project;
 
 namespace Belp.Build.Test.MSBuild.Resources;
 
@@ -20,16 +20,16 @@ public sealed class FileTestProject : TestProject
         /// </summary>
         public string CacheLocation { get; }
 
-        private readonly Lazy<MSBuildProject> _project;
+        private readonly Lazy<Project> _project;
 
         /// <inheritdoc />
-        public override MSBuildProject Project => _project.Value;
+        public override Project MSBuildProject => _project.Value;
 
         internal Instance(FileTestProject project)
             : base(project)
         {
             CacheLocation = IOPath.Combine(TestPaths.ProjectCache, Guid.NewGuid().ToString("N"));
-            _project = new(() => MSBuildProject.FromFile(IOPath.Combine(CacheLocation, IOPath.GetRelativePath(TestProject.RootPath, TestProject.Path)), new()), true);
+            _project = new(() => Project.FromFile(IOPath.Combine(CacheLocation, IOPath.GetRelativePath(TestProject.RootPath, TestProject.Path)), new()), true);
 
             if (!Directory.Exists(CacheLocation))
             {

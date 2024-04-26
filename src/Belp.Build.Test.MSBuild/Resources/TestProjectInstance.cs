@@ -17,7 +17,7 @@ public abstract class TestProjectInstance
     /// <summary>
     /// Gets the MSBuild project used for building.
     /// </summary>
-    public abstract Project Project { get; }
+    public abstract Project MSBuildProject { get; }
 
     /// <summary>
     /// Builds the project instance.
@@ -34,7 +34,7 @@ public abstract class TestProjectInstance
         // Restore
         {
             var buildParameters = new BuildParametersWithDefaults(logger);
-            var buildRequestData = new BuildRequestData(Project.CreateProjectInstance(), ["Restore"]);
+            var buildRequestData = new BuildRequestData(MSBuildProject.CreateProjectInstance(), ["Restore"]);
 
             _ = BuildManager.DefaultBuildManager.Build(buildParameters, buildRequestData);
         }
@@ -42,9 +42,9 @@ public abstract class TestProjectInstance
         // Build
         {
             var buildParameters = new BuildParametersWithDefaults(logger);
-            Project.MarkDirty();
-            Project.ReevaluateIfNecessary();
-            var buildRequestData = new BuildRequestData(Project.CreateProjectInstance(), ["Build"], hostServices, buildRequestDataFlags ?? BuildRequestDataFlags.None);
+            MSBuildProject.MarkDirty();
+            MSBuildProject.ReevaluateIfNecessary();
+            var buildRequestData = new BuildRequestData(MSBuildProject.CreateProjectInstance(), ["Build"], hostServices, buildRequestDataFlags ?? BuildRequestDataFlags.None);
             configureParameters?.Invoke(buildParameters);
             configureRequestData?.Invoke(buildRequestData);
 
