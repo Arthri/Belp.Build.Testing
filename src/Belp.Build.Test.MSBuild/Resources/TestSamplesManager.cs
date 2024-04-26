@@ -1,4 +1,7 @@
-﻿namespace Belp.Build.Test.MSBuild.Resources;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
+
+namespace Belp.Build.Test.MSBuild.Resources;
 
 /// <summary>
 /// Manages the test projects and test caches.
@@ -23,8 +26,6 @@ internal static partial class TestSamplesManager
         }
 
         InternalTestSamples = testSamples;
-
-        ClearCache();
     }
 
     private static void CreateTempRoot()
@@ -81,6 +82,8 @@ internal static partial class TestSamplesManager
     /// <summary>
     /// Deletes and recreates <see cref="TestPaths.TempRoot"/>.
     /// </summary>
+    [ModuleInitializer]
+    [SuppressMessage("Usage", "CA2255:The 'ModuleInitializer' attribute should not be used in libraries", Justification = "The method should be ran at startup to create the necessary test files.")]
     public static void ClearCache()
     {
         try
