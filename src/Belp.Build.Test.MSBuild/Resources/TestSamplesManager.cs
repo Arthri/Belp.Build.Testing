@@ -1,4 +1,5 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 
 namespace Belp.Build.Test.MSBuild.Resources;
@@ -8,7 +9,7 @@ namespace Belp.Build.Test.MSBuild.Resources;
 /// </summary>
 internal static partial class TestSamplesManager
 {
-    private static readonly Dictionary<string, TestSample> InternalTestSamples;
+    private static readonly IDictionary<string, TestSample> InternalTestSamples;
 
     /// <summary>
     /// Gets a dictionary of test projects.
@@ -17,15 +18,22 @@ internal static partial class TestSamplesManager
 
     static TestSamplesManager()
     {
-        string[] testSamplesDirectories = Directory.GetDirectories(TestPaths.TestSamples);
-        var testSamples = new Dictionary<string, TestSample>(testSamplesDirectories.Length);
-        for (int i = 0; i < testSamplesDirectories.Length; i++)
+        if (Directory.Exists(TestPaths.TestSamples))
         {
-            string testSampleDirectory = testSamplesDirectories[i];
-            testSamples[Path.GetFileName(testSampleDirectory)] = TestSample.FromDirectory(testSampleDirectory);
-        }
+            string[] testSamplesDirectories = Directory.GetDirectories(TestPaths.TestSamples);
+            var testSamples = new Dictionary<string, TestSample>(testSamplesDirectories.Length);
+            for (int i = 0; i < testSamplesDirectories.Length; i++)
+            {
+                string testSampleDirectory = testSamplesDirectories[i];
+                testSamples[Path.GetFileName(testSampleDirectory)] = TestSample.FromDirectory(testSampleDirectory);
+            }
 
-        InternalTestSamples = testSamples;
+            InternalTestSamples = testSamples;
+        }
+        else
+        {
+            InternalTestSamples = ImmutableDictionary<string, TestSample>.Empty;
+        }
     }
 
     private static void CreateTempRoot()
