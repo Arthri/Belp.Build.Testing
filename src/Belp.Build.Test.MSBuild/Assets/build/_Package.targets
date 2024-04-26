@@ -4,7 +4,7 @@
     <_TestPackagesDirectory>$(TargetDir)packages</_TestPackagesDirectory>
   </PropertyGroup>
 
-  <Target Name="PackProjectsUnderTest" AfterTargets="Build">
+  <Target Name="PackProjectsUnderTest" AfterTargets="Build" Condition="'@(BuildProjectUnderTest)' != ''">
     <MSBuild BuildInParallel="true" Projects="@(BuildProjectUnderTest)" Targets="Pack;_GetOutputItemsFromPack">
       <Output TaskParameter="TargetOutputs" ItemName="_BuildProjectPackOutputs" />
     </MSBuild>
