@@ -1,4 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
+using System.Diagnostics.CodeAnalysis;
 using IOPath = System.IO.Path;
 using MSBuildProject = Microsoft.Build.Evaluation.Project;
 
@@ -16,7 +16,7 @@ public sealed class FileTestProject : TestProject
     public sealed class Instance : TestProjectInstance<FileTestProject>
     {
         /// <summary>
-        /// Gets the clone's location.
+        /// Gets the clone's physical location.
         /// </summary>
         public string CacheLocation { get; }
 
