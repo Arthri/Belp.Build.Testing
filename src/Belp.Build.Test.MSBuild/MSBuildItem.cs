@@ -1,4 +1,4 @@
-﻿using Microsoft.Build.Execution;
+using Microsoft.Build.Execution;
 
 namespace Belp.Build.Test.MSBuild;
 
@@ -38,9 +38,9 @@ public readonly struct MSBuildItem
     public string Type => _item.ItemType;
 
     /// <summary>
-    /// Gets the item's evaluated include.
+    /// Gets the item's identity or the evaluated contents of its Include attribute.
     /// </summary>
-    public string Include => _item.EvaluatedInclude;
+    public string Identity => _item.EvaluatedInclude;
 
     /// <summary>
     /// Gets the item's metadata.
