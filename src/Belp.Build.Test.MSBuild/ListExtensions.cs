@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System.Collections.Frozen;
 
 namespace Belp.Build.Test.MSBuild;
 
@@ -22,10 +23,36 @@ public static class IReadOnlyListExtensions
         /// </summary>
         public IReadOnlyDictionary<string, string> Metadata { get; }
 
+        internal MSBuildItemWithoutType(string identity, IReadOnlyDictionary<string, string> metadata)
+        {
+            Identity = identity;
+            Metadata = metadata;
+        }
+
         internal MSBuildItemWithoutType(MSBuildItem item)
         {
             Identity = item.Identity;
             Metadata = item.Metadata;
+        }
+
+        /// <summary>
+        /// Defines an implicit conversion from an item identity to a metadata-less <see cref="MSBuildItemWithoutType" />.
+        /// </summary>
+        /// <param name="identity">The identity of the item, or the contents of the Include attribute.</param>
+        /// <returns>The converted metadata-less item.</returns>
+        public static implicit operator MSBuildItemWithoutType(string identity)
+        {
+            return new(identity, FrozenDictionary<string, string>.Empty);
+        }
+
+        /// <summary>
+        /// Defines an implicit conversion from a tuple-form item to a <see cref="MSBuildItemWithoutType" />.
+        /// </summary>
+        /// <param name="item">The tuple-form item to convert.</param>
+        /// <returns>The converted tuple-form item.</returns>
+        public static implicit operator MSBuildItemWithoutType((string Identity, (string Name, string Value)[] Metadata) item)
+        {
+            return new(item.Identity, item.Metadata.ToDictionary(m => m.Name, m => m.Value));
         }
     }
 
