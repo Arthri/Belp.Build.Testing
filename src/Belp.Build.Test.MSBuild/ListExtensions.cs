@@ -88,7 +88,7 @@ public static class IReadOnlyListExtensions
     /// </summary>
     /// <param name="items">The list of items to remove the types from.</param>
     /// <returns>A list of items without attached item types.</returns>
-    public static IReadOnlyList<MSBuildItemWithoutType> RemoveTypes(IReadOnlyList<MSBuildItem> items)
+    public static IReadOnlyList<MSBuildItemWithoutType> RemoveTypes(this IReadOnlyList<MSBuildItem> items)
     {
         return new UntypedMSBuildItemList(items);
     }
