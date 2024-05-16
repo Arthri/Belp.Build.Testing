@@ -6,7 +6,7 @@ namespace Belp.Build.Test.MSBuild;
 /// <summary>
 /// Represents an item declared inside an MSBuild project.
 /// </summary>
-public readonly struct MSBuildItem
+public readonly record struct MSBuildItem
 {
     /// <summary>
     /// Gets the item's type.
