@@ -9,29 +9,6 @@ namespace Belp.Build.Test.MSBuild;
 public readonly struct MSBuildItem
 {
     /// <summary>
-    /// Represents an item's metadata.
-    /// </summary>
-    public readonly struct ItemMetadata
-    {
-        private readonly ProjectMetadataInstance _metadata;
-
-        /// <summary>
-        /// Gets the metadata's name.
-        /// </summary>
-        public string Name => _metadata.Name;
-
-        /// <summary>
-        /// Gets the metadata's evaluated value.
-        /// </summary>
-        public string Value => _metadata.EvaluatedValue;
-
-        internal ItemMetadata(ProjectMetadataInstance metadata)
-        {
-            _metadata = metadata;
-        }
-    }
-
-    /// <summary>
     /// Gets the item's type.
     /// </summary>
     public string Type { get; }
