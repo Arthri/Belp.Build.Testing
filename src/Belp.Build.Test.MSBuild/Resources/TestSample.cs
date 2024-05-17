@@ -39,7 +39,7 @@ public sealed class TestSample
         FileTestProject[]? nestedProjects = null;
         FileTestProject[]? srcProjects = null;
 
-        string samplesDirectoryName = Path.GetFileName(Path.GetDirectoryName(rootDirectory))!;
+        string samplesDirectoryName = Path.GetFileName(rootDirectory);
         TestProject? defaultProject = FindDefaultProject(samplesDirectoryName, projects);
         string directoryWithSameNameAsParent = Path.Combine(rootDirectory, samplesDirectoryName);
         if (Directory.Exists(directoryWithSameNameAsParent))
