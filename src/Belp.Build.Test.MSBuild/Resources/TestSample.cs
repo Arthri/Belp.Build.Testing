@@ -90,17 +90,24 @@ public sealed class TestSample
             };
     }
 
-    private static FileTestProject[] ReadTestProjectsFrom(string path)
+    private static FileTestProject[] ReadTestProjectsFrom(string path, string? containingRoot = null)
     {
         string[] projectPaths = Directory.GetFiles(path, "*.*proj");
 
         var projects = new FileTestProject[projectPaths.Length];
         for (int i = 0; i < projectPaths.Length; i++)
         {
-            projects[i] = new FileTestProject
-            {
-                Path = projectPaths[i],
-            };
+            projects[i] =
+                containingRoot is not null
+                ? new FileTestProject
+                {
+                    Path = projectPaths[i],
+                    ContainingRoot = containingRoot,
+                }
+                : new FileTestProject
+                {
+                    Path = projectPaths[i],
+                };
         }
 
         return projects;
