@@ -40,7 +40,7 @@ public sealed class TestSample
         FileTestProject[]? srcProjects = null;
 
         string samplesDirectoryName = Path.GetFileName(Path.GetDirectoryName(rootDirectory))!;
-        TestProject defaultProject = FindDefaultProject(samplesDirectoryName, projects);
+        TestProject? defaultProject = FindDefaultProject(samplesDirectoryName, projects);
         string directoryWithSameNameAsParent = Path.Combine(rootDirectory, samplesDirectoryName);
         if (Directory.Exists(directoryWithSameNameAsParent))
         {
@@ -85,7 +85,8 @@ public sealed class TestSample
             : new TestSample(combinedProjects)
             {
                 RootPath = rootDirectory,
-                DefaultProject = defaultProject,
+                // If at least one project is found, then default projects is guaranteed to be non-null
+                DefaultProject = defaultProject!,
             };
     }
 
@@ -105,13 +106,13 @@ public sealed class TestSample
         return projects;
     }
 
-    private static TestProject FindDefaultProject(string directoryName, FileTestProject[] projects)
+    private static TestProject? FindDefaultProject(string directoryName, FileTestProject[] projects)
     {
         IEnumerable<FileTestProject> projectsWithSameNameAsParent = projects.Where(p => Path.GetFileNameWithoutExtension(p.Path) == directoryName);
         using IEnumerator<FileTestProject> enumerator = projectsWithSameNameAsParent.GetEnumerator();
         if (!enumerator.MoveNext())
         {
-            return projects.OrderBy(static p => p.Path, StringComparer.InvariantCulture).First();
+            return projects.OrderBy(static p => p.Path, StringComparer.InvariantCulture).FirstOrDefault();
         }
 
         TestProject defaultProject = enumerator.Current;
