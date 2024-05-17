@@ -1,4 +1,5 @@
 ﻿using Belp.Build.Test.MSBuild.Resources;
+using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 
 namespace Belp.Build.Test.MSBuild;
@@ -11,16 +12,19 @@ public class MSBuildTest
     /// <summary>
     /// Provides a facade which initiates a request to load something.
     /// </summary>
+    [EditorBrowsable(EditorBrowsableState.Never)]
     public readonly ref struct LoadFacade
     {
         /// <summary>
         /// Provides a facade which initiates a request to load a project.
         /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public readonly ref struct ProjectFacade
         {
             /// <summary>
             /// Provides a facade which initiates a request to load a project from somewhere.
             /// </summary>
+            [EditorBrowsable(EditorBrowsableState.Never)]
             public readonly ref struct FromFacade
             {
                 /// <summary>
