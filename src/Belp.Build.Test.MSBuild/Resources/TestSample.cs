@@ -55,7 +55,7 @@ public sealed class TestSample
         }
 
 
-        int combinedProjectsLength = projects.Length + nestedProjects?.Length ?? 0 + srcProjects?.Length ?? 0;
+        int combinedProjectsLength = projects.Length + (nestedProjects?.Length ?? 0) + (srcProjects?.Length ?? 0);
         TestProject[] combinedProjects;
         if (combinedProjectsLength == projects.Length)
         {
