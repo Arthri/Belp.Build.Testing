@@ -80,21 +80,18 @@ public sealed class TestSample
 #pragma warning restore IDE0059 // Unnecessary assignment of a value
             }
         }
-        return new TestSample(combinedProjects)
-        {
-            RootPath = rootDirectory,
-            DefaultProject = defaultProject,
-        };
+        return combinedProjects.Length == 0
+            ? throw new NoTestProjectsException(rootDirectory)
+            : new TestSample(combinedProjects)
+            {
+                RootPath = rootDirectory,
+                DefaultProject = defaultProject,
+            };
     }
 
     private static FileTestProject[] ReadTestProjectsFrom(string path)
     {
         string[] projectPaths = Directory.GetFiles(path, "*.*proj");
-
-        if (projectPaths.Length == 0)
-        {
-            throw new NoTestProjectsException(path);
-        }
 
         var projects = new FileTestProject[projectPaths.Length];
         for (int i = 0; i < projectPaths.Length; i++)
