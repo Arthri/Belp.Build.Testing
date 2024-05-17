@@ -44,13 +44,13 @@ public sealed class TestSample
         string directoryWithSameNameAsParent = Path.Combine(rootDirectory, samplesDirectoryName);
         if (Directory.Exists(directoryWithSameNameAsParent))
         {
-            nestedProjects = ReadTestProjectsFrom(directoryWithSameNameAsParent);
+            nestedProjects = ReadTestProjectsFrom(directoryWithSameNameAsParent, rootDirectory);
             defaultProject ??= FindDefaultProject(samplesDirectoryName, nestedProjects);
         }
         string srcPath = Path.Combine(rootDirectory, "src", samplesDirectoryName);
         if (Directory.Exists(srcPath))
         {
-            srcProjects = ReadTestProjectsFrom(srcPath);
+            srcProjects = ReadTestProjectsFrom(srcPath, rootDirectory);
             defaultProject ??= FindDefaultProject(samplesDirectoryName, srcProjects);
         }
 
