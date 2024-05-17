@@ -35,11 +35,65 @@ public sealed class TestSample
     /// <exception cref="InvalidOperationException">No *.*proj files were found.<br />-or-<br />Sample contained multiple projects with the same name as the <paramref name="rootDirectory"/>.</exception>
     public static TestSample FromDirectory(string rootDirectory)
     {
-        string[] projectPaths = Directory.GetFiles(rootDirectory, "*.*proj");
+        FileTestProject[] projects = ReadTestProjectsFrom(rootDirectory);
+        FileTestProject[]? nestedProjects = null;
+        FileTestProject[]? srcProjects = null;
+
+        string samplesDirectoryName = Path.GetFileName(Path.GetDirectoryName(rootDirectory))!;
+        TestProject defaultProject = FindDefaultProject(samplesDirectoryName, projects);
+        string directoryWithSameNameAsParent = Path.Combine(rootDirectory, samplesDirectoryName);
+        if (Directory.Exists(directoryWithSameNameAsParent))
+        {
+            nestedProjects = ReadTestProjectsFrom(directoryWithSameNameAsParent);
+            defaultProject ??= FindDefaultProject(samplesDirectoryName, nestedProjects);
+        }
+        string srcPath = Path.Combine(rootDirectory, "src", samplesDirectoryName);
+        if (Directory.Exists(srcPath))
+        {
+            srcProjects = ReadTestProjectsFrom(srcPath);
+            defaultProject ??= FindDefaultProject(samplesDirectoryName, srcProjects);
+        }
+
+
+        int combinedProjectsLength = projects.Length + nestedProjects?.Length ?? 0 + srcProjects?.Length ?? 0;
+        TestProject[] combinedProjects;
+        if (combinedProjectsLength == projects.Length)
+        {
+            combinedProjects = projects;
+        }
+        else
+        {
+            combinedProjects = new TestProject[combinedProjectsLength];
+            Span<TestProject> cursor = combinedProjects.AsSpan();
+            projects.CopyTo(cursor);
+            cursor = cursor[projects.Length..];
+            if (nestedProjects is not null)
+            {
+                nestedProjects.CopyTo(cursor);
+                cursor = cursor[nestedProjects.Length..];
+            }
+            if (srcProjects is not null)
+            {
+                srcProjects.CopyTo(cursor);
+#pragma warning disable IDE0059 // Unnecessary assignment of a value
+                cursor = cursor[srcProjects.Length..];
+#pragma warning restore IDE0059 // Unnecessary assignment of a value
+            }
+        }
+        return new TestSample(combinedProjects)
+        {
+            RootPath = rootDirectory,
+            DefaultProject = defaultProject,
+        };
+    }
+
+    private static FileTestProject[] ReadTestProjectsFrom(string path)
+    {
+        string[] projectPaths = Directory.GetFiles(path, "*.*proj");
 
         if (projectPaths.Length == 0)
         {
-            throw new NoSamplesFoundException(rootDirectory);
+            throw new NoTestProjectsException(path);
         }
 
         var projects = new FileTestProject[projectPaths.Length];
@@ -51,35 +105,22 @@ public sealed class TestSample
             };
         }
 
+        return projects;
+    }
 
-
-        string? samplesDirectoryName = Path.GetFileName(Path.GetDirectoryName(rootDirectory));
-        TestProject defaultProject;
-        do
+    private static TestProject FindDefaultProject(string directoryName, FileTestProject[] projects)
+    {
+        IEnumerable<FileTestProject> projectsWithSameNameAsParent = projects.Where(p => Path.GetFileNameWithoutExtension(p.Path) == directoryName);
+        using IEnumerator<FileTestProject> enumerator = projectsWithSameNameAsParent.GetEnumerator();
+        if (!enumerator.MoveNext())
         {
-            IEnumerable<FileTestProject> projectsWithSameNameAsParent = projects.Where(p => Path.GetFileNameWithoutExtension(p.Path) == samplesDirectoryName);
-            using IEnumerator<FileTestProject> enumerator = projectsWithSameNameAsParent.GetEnumerator();
-            if (!enumerator.MoveNext())
-            {
-                defaultProject = projects.OrderBy(static p => p.Path, StringComparer.InvariantCulture).First();
-                break;
-            }
-
-            defaultProject = enumerator.Current;
-
-            if (enumerator.MoveNext())
-            {
-                throw new MultipleDefaultProjectsFoundException(rootDirectory, projectsWithSameNameAsParent.Select(p => p.Path));
-            }
+            return projects.OrderBy(static p => p.Path, StringComparer.InvariantCulture).First();
         }
-        while (false);
 
+        TestProject defaultProject = enumerator.Current;
 
-
-        return new TestSample(projects)
-        {
-            RootPath = rootDirectory,
-            DefaultProject = defaultProject,
-        };
+        return enumerator.MoveNext()
+            ? throw new MultipleDefaultProjectsFoundException(directoryName, projectsWithSameNameAsParent.Select(p => p.Path))
+            : defaultProject;
     }
 }

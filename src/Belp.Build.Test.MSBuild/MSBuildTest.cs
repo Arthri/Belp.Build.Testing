@@ -50,7 +50,12 @@ public class MSBuildTest
 
                     TestSample sample = TestSamplesManager.TestSamples[sampleName];
                     TestProject? project = null;
-                    IEnumerable<TestProject> matchingProjects = sample.Projects.Where(p => p.Name.StartsWith(projectName));
+                    IEnumerable<TestProject> matchingProjects =
+                        projectName.Contains('/')
+                        ? sample.Projects
+                            .OfType<FileTestProject>()
+                            .Where(p => Path.GetRelativePath(sample.RootPath, p.Path).AsSpan().StartsWith(projectName.AsSpan().TrimStart('/')))
+                        : sample.Projects.Where(p => p.Name.StartsWith(projectName));
                     using IEnumerator<TestProject> enumerator = matchingProjects.GetEnumerator();
                     if (!enumerator.MoveNext())
                     {
