@@ -26,8 +26,9 @@ public abstract class TestProjectInstance
     /// <param name="hostServices"><inheritdoc cref="BuildRequestData(ProjectInstance, string[], HostServices)" path="/param[@name='hostServices']" /></param>
     /// <param name="configureParameters">An optional action which configures the assembled <see cref="BuildParameters"/> before building.</param>
     /// <param name="configureRequestData">An optional action which configures the assembled <see cref="BuildRequestData"/> before building.</param>
+    /// <param name="configureProjectInstance">An optional action which configures the project instance before building.</param>
     /// <returns>The build result.</returns>
-    public MSBuildResult Build(BuildRequestDataFlags? buildRequestDataFlags = null, HostServices? hostServices = null, Action<BuildParameters>? configureParameters = null, Action<BuildRequestData>? configureRequestData = null)
+    public MSBuildResult Build(BuildRequestDataFlags? buildRequestDataFlags = null, HostServices? hostServices = null, Action<BuildParameters>? configureParameters = null, Action<BuildRequestData>? configureRequestData = null, Action<ProjectInstance>? configureProjectInstance = null)
     {
         var logger = new MSBuildDiagnosticLogger();
 
@@ -44,7 +45,9 @@ public abstract class TestProjectInstance
             var buildParameters = new BuildParametersWithDefaults(logger);
             MSBuildProject.MarkDirty();
             MSBuildProject.ReevaluateIfNecessary();
-            var buildRequestData = new BuildRequestData(MSBuildProject.CreateProjectInstance(), ["Build"], hostServices, buildRequestDataFlags ?? BuildRequestDataFlags.None);
+            var projectInstance = MSBuildProject.CreateProjectInstance();
+            configureProjectInstance?.Invoke(projectInstance);
+            var buildRequestData = new BuildRequestData(projectInstance, ["Build"], hostServices, buildRequestDataFlags ?? BuildRequestDataFlags.None);
             configureParameters?.Invoke(buildParameters);
             configureRequestData?.Invoke(buildRequestData);
 
