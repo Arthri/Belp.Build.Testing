@@ -49,7 +49,7 @@ internal static partial class TestSamplesManager
               </config>
               <packageSources>
                 <clear />
-                <add key="Belp.SDK.Test.MSBuild Packages" value="{TestPaths.PackagesDirectory}" />
+                <add key="Test Packages" value="{TestPaths.PackagesDirectory}" />
               </packageSources>
             </configuration>
             """
