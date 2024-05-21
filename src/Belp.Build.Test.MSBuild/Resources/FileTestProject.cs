@@ -25,11 +25,12 @@ public sealed class FileTestProject : TestProject
         /// <inheritdoc />
         public override Project MSBuildProject => _project.Value;
 
-        internal Instance(FileTestProject project)
+        internal Instance(FileTestProject project, string? location = null)
             : base(project)
         {
-            Location = IOPath.Combine(TestPaths.ProjectCache, Guid.NewGuid().ToString("N"));
-            _project = new(() => Project.FromFile(IOPath.Combine(Location, IOPath.GetRelativePath(TestProject.ContainingRoot, TestProject.Path)), new()), true);
+            location ??= IOPath.Combine(TestPaths.ProjectCache, Guid.NewGuid().ToString("N"));
+            Location = location;
+            _project = new(() => Project.FromFile(IOPath.Combine(Location, IOPath.GetRelativePath(TestProject.RootPath, TestProject.Path)), new()), true);
 
             if (!Directory.Exists(Location))
             {
@@ -58,7 +59,7 @@ public sealed class FileTestProject : TestProject
         {
             Delete();
 
-            string sourceDirectory = TestProject.ContainingRoot;
+            string sourceDirectory = TestProject.RootPath;
 
             foreach (string file in Directory.GetFiles(sourceDirectory, "*", SearchOption.AllDirectories))
             {
@@ -74,11 +75,6 @@ public sealed class FileTestProject : TestProject
     }
 
     /// <summary>
-    /// Gets the path to the root directory containing this nested project.
-    /// </summary>
-    internal string ContainingRoot { get; init; }
-
-    /// <summary>
     /// Gets the path the project is located in.
     /// </summary>
     public string RootPath { get; private init; }
@@ -92,7 +88,7 @@ public sealed class FileTestProject : TestProject
     {
         get => _path;
 
-        [MemberNotNull(nameof(RootPath), nameof(_path), nameof(_name), nameof(ContainingRoot))]
+        [MemberNotNull(nameof(RootPath), nameof(_path), nameof(_name))]
         init
         {
             ArgumentNullException.ThrowIfNull(value);
@@ -104,7 +100,6 @@ public sealed class FileTestProject : TestProject
 
             _path = value;
             RootPath = IOPath.GetDirectoryName(value) ?? throw new InvalidOperationException($"{value}'s parent directory is null.");
-            ContainingRoot = RootPath;
             _name = IOPath.GetFileName(Path);
         }
     }
@@ -125,5 +120,10 @@ public sealed class FileTestProject : TestProject
     public override Instance Clone()
     {
         return new(this);
+    }
+
+    internal Instance CloneInto(string location)
+    {
+        return new(this, location);
     }
 }

@@ -52,23 +52,9 @@ internal static class _GlobalTestPackageReferences
 
 
 
-  <!-- Output Configuration -->
-  <ItemGroup>
-    <None Update="samples/**/*" CopyToOutputDirectory="PreserveNewest" />
-    <None Include="samples/**/*.*proj" CopyToOutputDirectory="PreserveNewest" />
-    <_DiscardedSamples Include="$(TargetDir)/samples/**/*" />
-    <_CurrentSamples Include="samples/**/*" />
-    <_DiscardedSamples Remove="@(_CurrentSamples->'$(TargetDir)%(Identity)')" />
-    <_CurrentSamples Remove="@(_CurrentSamples)" />
-    <_SampleDirectories Include="$([MSBuild]::Unescape($([System.String]::Join(';', $([System.IO.Directory]::GetDirectories('$(TargetDir)/samples/'))))))" />
-  </ItemGroup>
-
-  <Target Name="RemoveOldSampleFiles" BeforeTargets="Build">
-    <Delete Files="@(_DiscardedSamples)" />
-    <ItemGroup>
-      <_SampleDirectories Remove="@(_SampleDirectories)" Condition="$([System.IO.Directory]::GetFiles('%(FullPath)').Length) != '0'" />
-    </ItemGroup>
-    <RemoveDir Directories="@(_SampleDirectories)" />
+  <!-- Configure Samples -->
+  <Target Name="WriteSamplesPath" AfterTargets="Build">
+    <WriteLinesToFile File="$(TargetDir)samples_path.txt" Lines="$([System.IO.Path]::GetFullPath('$(MSBuildProjectDirectory)/samples'))" Overwrite="true" />
   </Target>
 
 

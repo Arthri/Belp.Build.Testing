@@ -13,10 +13,7 @@ public static class TestPaths
     /// <summary>
     /// Gets the directory which contains the test projects.
     /// </summary>
-    public static string TestSamples => Path.Combine(
-        TestRoot,
-        "samples"
-    );
+    public static string TestSamples => File.ReadAllText("samples_path.txt");
 
     /// <summary>
     /// Gets the directory which contains the packages to be tested.

@@ -10,19 +10,19 @@ public sealed class TestSample
     /// </summary>
     public required string RootPath { get; init; }
 
-    private readonly TestProject[] _testProjects;
+    private readonly FileTestProject[] _testProjects;
 
     /// <summary>
     /// Gets a list of sample projects.
     /// </summary>
-    public IReadOnlyList<TestProject> Projects => _testProjects.AsReadOnly();
+    public IReadOnlyList<FileTestProject> Projects => _testProjects.AsReadOnly();
 
     /// <summary>
     /// Gets the default project to be used if no project is specified.
     /// </summary>
-    public required TestProject DefaultProject { get; init; }
+    public required FileTestProject DefaultProject { get; init; }
 
-    private TestSample(TestProject[] testProjects)
+    private TestSample(FileTestProject[] testProjects)
     {
         _testProjects = testProjects;
     }
@@ -40,31 +40,31 @@ public sealed class TestSample
         FileTestProject[]? srcProjects = null;
 
         string samplesDirectoryName = Path.GetFileName(rootDirectory);
-        TestProject? defaultProject = FindDefaultProject(samplesDirectoryName, projects);
+        FileTestProject? defaultProject = FindDefaultProject(samplesDirectoryName, projects);
         string directoryWithSameNameAsParent = Path.Combine(rootDirectory, samplesDirectoryName);
         if (Directory.Exists(directoryWithSameNameAsParent))
         {
-            nestedProjects = ReadTestProjectsFrom(directoryWithSameNameAsParent, rootDirectory);
+            nestedProjects = ReadTestProjectsFrom(directoryWithSameNameAsParent);
             defaultProject ??= FindDefaultProject(samplesDirectoryName, nestedProjects);
         }
         string srcPath = Path.Combine(rootDirectory, "src", samplesDirectoryName);
         if (Directory.Exists(srcPath))
         {
-            srcProjects = ReadTestProjectsFrom(srcPath, rootDirectory);
+            srcProjects = ReadTestProjectsFrom(srcPath);
             defaultProject ??= FindDefaultProject(samplesDirectoryName, srcProjects);
         }
 
 
         int combinedProjectsLength = projects.Length + (nestedProjects?.Length ?? 0) + (srcProjects?.Length ?? 0);
-        TestProject[] combinedProjects;
+        FileTestProject[] combinedProjects;
         if (combinedProjectsLength == projects.Length)
         {
             combinedProjects = projects;
         }
         else
         {
-            combinedProjects = new TestProject[combinedProjectsLength];
-            Span<TestProject> cursor = combinedProjects.AsSpan();
+            combinedProjects = new FileTestProject[combinedProjectsLength];
+            Span<FileTestProject> cursor = combinedProjects.AsSpan();
             projects.CopyTo(cursor);
             cursor = cursor[projects.Length..];
             if (nestedProjects is not null)
@@ -90,30 +90,23 @@ public sealed class TestSample
             };
     }
 
-    private static FileTestProject[] ReadTestProjectsFrom(string path, string? containingRoot = null)
+    private static FileTestProject[] ReadTestProjectsFrom(string path)
     {
         string[] projectPaths = Directory.GetFiles(path, "*.*proj");
 
         var projects = new FileTestProject[projectPaths.Length];
         for (int i = 0; i < projectPaths.Length; i++)
         {
-            projects[i] =
-                containingRoot is not null
-                ? new FileTestProject
-                {
-                    Path = projectPaths[i],
-                    ContainingRoot = containingRoot,
-                }
-                : new FileTestProject
-                {
-                    Path = projectPaths[i],
-                };
+            projects[i] = new FileTestProject
+            {
+                Path = projectPaths[i],
+            };
         }
 
         return projects;
     }
 
-    private static TestProject? FindDefaultProject(string directoryName, FileTestProject[] projects)
+    private static FileTestProject? FindDefaultProject(string directoryName, FileTestProject[] projects)
     {
         IEnumerable<FileTestProject> projectsWithSameNameAsParent = projects.Where(p => Path.GetFileNameWithoutExtension(p.Path) == directoryName);
         using IEnumerator<FileTestProject> enumerator = projectsWithSameNameAsParent.GetEnumerator();
@@ -122,10 +115,19 @@ public sealed class TestSample
             return projects.OrderBy(static p => p.Path, StringComparer.InvariantCulture).FirstOrDefault();
         }
 
-        TestProject defaultProject = enumerator.Current;
+        FileTestProject defaultProject = enumerator.Current;
 
         return enumerator.MoveNext()
             ? throw new MultipleDefaultProjectsFoundException(directoryName, projectsWithSameNameAsParent.Select(p => p.Path))
             : defaultProject;
+    }
+
+    /// <summary>
+    /// Clones this test sample instance for use.
+    /// </summary>
+    /// <returns>The cloned test sample.</returns>
+    public TestSampleInstance Clone()
+    {
+        return new(this);
     }
 }
