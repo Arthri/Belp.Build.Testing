@@ -53,6 +53,10 @@ internal static class _GlobalTestPackageReferences
 
 
   <!-- Configure Samples -->
+  <ItemGroup>
+    <None Include="samples/**/*.*proj" />
+  </ItemGroup>
+
   <Target Name="WriteSamplesPath" AfterTargets="Build">
     <WriteLinesToFile File="$(TargetDir)samples_path.txt" Lines="$([System.IO.Path]::GetFullPath('$(MSBuildProjectDirectory)/samples'))" Overwrite="true" />
   </Target>
