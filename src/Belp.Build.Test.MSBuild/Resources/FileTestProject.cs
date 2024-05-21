@@ -28,7 +28,7 @@ public sealed class FileTestProject : TestProject
         internal Instance(FileTestProject project, string? location = null)
             : base(project)
         {
-            location ??= IOPath.Combine(TestPaths.ProjectCache, Guid.NewGuid().ToString("N"));
+            location ??= TestPaths.GetTempProjectDirectory();
             Location = location;
             _project = new(() => Project.FromFile(IOPath.Combine(Location, IOPath.GetRelativePath(TestProject.RootPath, TestProject.Path)), new()), true);
 

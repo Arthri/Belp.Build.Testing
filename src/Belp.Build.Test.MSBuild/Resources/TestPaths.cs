@@ -1,4 +1,6 @@
-﻿namespace Belp.Build.Test.MSBuild.Resources;
+﻿using System.IO;
+
+namespace Belp.Build.Test.MSBuild.Resources;
 
 /// <summary>
 /// Provides common paths used by <see cref="TestSamplesManager"/>.
@@ -46,4 +48,9 @@ public static class TestPaths
     /// Gets the cache directory for restored packages.
     /// </summary>
     public static string PackagesCache { get; } = Path.Combine(TempRoot, "packages_cache");
+
+    internal static string GetTempProjectDirectory()
+    {
+        return Path.Combine(ProjectCache, Guid.NewGuid().ToString("N"));
+    }
 }

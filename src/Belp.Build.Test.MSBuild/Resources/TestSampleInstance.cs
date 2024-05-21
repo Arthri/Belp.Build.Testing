@@ -31,7 +31,7 @@ public sealed class TestSampleInstance
     {
         Sample = sample;
 
-        RootPath = Path.Combine(TestPaths.ProjectCache, Guid.NewGuid().ToString("N"));
+        RootPath = TestPaths.GetTempProjectDirectory();
         RecursiveCopy(sample.RootPath, RootPath);
 
         DefaultProject = sample.DefaultProject.CloneInto(Path.Combine(RootPath, Path.GetRelativePath(sample.RootPath, sample.DefaultProject.RootPath)));

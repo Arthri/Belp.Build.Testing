@@ -29,7 +29,7 @@ public sealed class StringTestProject : TestProject
         internal Instance(StringTestProject project)
             : base(project)
         {
-            Location = IOPath.Combine(TestPaths.ProjectCache, Guid.NewGuid().ToString("N"));
+            Location = TestPaths.GetTempProjectDirectory();
             _projectPath = IOPath.Combine(Location, TestProject.Name);
 
             _project = new(() => Project.FromFile(_projectPath, new()), true);
