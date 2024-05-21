@@ -45,7 +45,7 @@ public abstract class TestProjectInstance
             var buildParameters = new BuildParametersWithDefaults(logger);
             MSBuildProject.MarkDirty();
             MSBuildProject.ReevaluateIfNecessary();
-            var projectInstance = MSBuildProject.CreateProjectInstance();
+            ProjectInstance projectInstance = MSBuildProject.CreateProjectInstance();
             configureProjectInstance?.Invoke(projectInstance);
             var buildRequestData = new BuildRequestData(projectInstance, ["Build"], hostServices, buildRequestDataFlags ?? BuildRequestDataFlags.None);
             configureParameters?.Invoke(buildParameters);
