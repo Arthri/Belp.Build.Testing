@@ -99,6 +99,19 @@ public class MSBuildTest
         /// </summary>
         [SuppressMessage("Performance", "CA1822:Mark members as static", Justification = "The member is intentionally declared on the instance so as to facilitate the fluent API.")]
         public ProjectFacade Project => new();
+
+        /// <summary>
+        /// Fetches and clones a project with the specified <paramref name="name"/>.
+        /// </summary>
+        /// <param name="name">The name of the sample.</param>
+        /// <returns>The fetched and cloned sample.</returns>
+        [SuppressMessage("Performance", "CA1822:Mark members as static", Justification = "The member is intentionally declared on the instance so as to facilitate the fluent API.")]
+        public TestSampleInstance Sample(string name)
+        {
+            ArgumentException.ThrowIfNullOrEmpty(name);
+
+            return TestSamplesManager.TestSamples[name].Clone();
+        }
     }
 
     /// <summary>
