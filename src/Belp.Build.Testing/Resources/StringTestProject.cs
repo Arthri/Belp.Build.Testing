@@ -12,12 +12,12 @@ public sealed class StringTestProject : TestProject
     /// Represents a test project instance for <see cref="StringTestProject" />.
     /// </summary>
     /// <remarks>Instances must be created using <see cref="StringTestProject.Clone()"/>.</remarks>
-    public sealed class Instance : TestProjectInstance<StringTestProject>
+    private sealed class Instance : TestProjectInstance<StringTestProject>
     {
         /// <summary>
-        /// Gets the clone's physical location.
+        /// Gets the directory containing this instance.
         /// </summary>
-        public string Location { get; }
+        private readonly string _directory;
 
         private readonly string _projectPath;
 
@@ -29,12 +29,12 @@ public sealed class StringTestProject : TestProject
         internal Instance(StringTestProject project)
             : base(project)
         {
-            Location = TestPaths.GetTempProjectDirectory();
-            _projectPath = IOPath.Combine(Location, TestProject.Name);
+            _directory = TestPaths.GetTempProjectDirectory();
+            _projectPath = IOPath.Combine(_directory, TestProject.Name);
 
             _project = new(() => Project.FromFile(_projectPath, new()), true);
 
-            if (!Directory.Exists(Location))
+            if (!Directory.Exists(_directory))
             {
                 Clone();
             }
@@ -47,7 +47,7 @@ public sealed class StringTestProject : TestProject
         {
             try
             {
-                Directory.Delete(Location, true);
+                Directory.Delete(_directory, true);
             }
             catch (DirectoryNotFoundException)
             {
@@ -61,7 +61,7 @@ public sealed class StringTestProject : TestProject
         {
             Delete();
 
-            _ = Directory.CreateDirectory(Location);
+            _ = Directory.CreateDirectory(_directory);
             File.WriteAllText(_projectPath, TestProject.Contents);
         }
     }
@@ -86,8 +86,8 @@ public sealed class StringTestProject : TestProject
     }
 
     /// <inheritdoc />
-    public override Instance Clone()
+    public override TestProjectInstance Clone()
     {
-        return new(this);
+        return new Instance(this);
     }
 }

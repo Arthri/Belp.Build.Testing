@@ -11,19 +11,19 @@ public sealed class TestSampleInstance
     public TestSample Sample { get; }
 
     /// <summary>
-    /// Gets the location of the instance's cloned files.
+    /// Gets the directory containing the instance.
     /// </summary>
-    public string RootPath { get; }
+    public string Directory { get; }
 
     private readonly FileTestProject.Instance[] _testProjects;
 
     /// <summary>
-    /// Gets a list of sample project instances.
+    /// Gets a list of cloned test projects.
     /// </summary>
     public IReadOnlyList<FileTestProject.Instance> Projects => _testProjects.AsReadOnly();
 
     /// <summary>
-    /// Gets the default project instance to be used if no project is specified.
+    /// Gets the default project to be used if no project is specified.
     /// </summary>
     public FileTestProject.Instance DefaultProject { get; }
 
@@ -31,10 +31,10 @@ public sealed class TestSampleInstance
     {
         Sample = sample;
 
-        RootPath = TestPaths.GetTempProjectDirectory();
-        RecursiveCopy(sample.RootPath, RootPath);
+        Directory = TestPaths.GetTempProjectDirectory();
+        RecursiveCopy(sample.Directory, Directory);
 
-        DefaultProject = sample.DefaultProject.CloneInto(Path.Combine(RootPath, Path.GetRelativePath(sample.RootPath, sample.DefaultProject.RootPath)));
+        DefaultProject = sample.DefaultProject.CloneInto(Path.Combine(Directory, Path.GetRelativePath(sample.Directory, sample.DefaultProject.Directory)));
         IReadOnlyList<FileTestProject> testProjects = sample.Projects;
         var testProjectInstances = new FileTestProject.Instance[testProjects.Count];
         for (int i = 0; i < testProjects.Count; i++)
@@ -43,7 +43,7 @@ public sealed class TestSampleInstance
             FileTestProject.Instance testProjectInstance =
                 ReferenceEquals(sample.DefaultProject, testProject)
                     ? DefaultProject
-                    : testProject.CloneInto(Path.Combine(RootPath, Path.GetRelativePath(sample.RootPath, testProject.RootPath)))
+                    : testProject.CloneInto(Path.Combine(Directory, Path.GetRelativePath(sample.Directory, testProject.Directory)))
                 ;
             testProjectInstances[i] = testProjectInstance;
         }
@@ -52,23 +52,23 @@ public sealed class TestSampleInstance
 
     private static void RecursiveCopy(string source, string destination)
     {
-        var directoriesToCopy = new Queue<string>(Directory.GetDirectories(source));
+        var directoriesToCopy = new Queue<string>(System.IO.Directory.GetDirectories(source));
 
-        _ = Directory.CreateDirectory(destination);
-        foreach (string file in Directory.GetFiles(source))
+        _ = System.IO.Directory.CreateDirectory(destination);
+        foreach (string file in System.IO.Directory.GetFiles(source))
         {
             File.Copy(file, Path.Combine(destination, Path.GetRelativePath(source, file)));
         }
 
         while (directoriesToCopy.TryDequeue(out string? directory))
         {
-            _ = Directory.CreateDirectory(Path.Combine(destination, Path.GetRelativePath(source, directory)));
-            foreach (string file in Directory.GetFiles(directory))
+            _ = System.IO.Directory.CreateDirectory(Path.Combine(destination, Path.GetRelativePath(source, directory)));
+            foreach (string file in System.IO.Directory.GetFiles(directory))
             {
                 File.Copy(file, Path.Combine(destination, Path.GetRelativePath(source, file)));
             }
 
-            string[] subDirectories = Directory.GetDirectories(directory);
+            string[] subDirectories = System.IO.Directory.GetDirectories(directory);
             _ = directoriesToCopy.EnsureCapacity(directoriesToCopy.Count + subDirectories.Length);
             foreach (string subDirectory in subDirectories)
             {

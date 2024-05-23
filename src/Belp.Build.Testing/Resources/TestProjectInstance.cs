@@ -10,7 +10,7 @@ namespace Belp.Build.Testing.Resources;
 public abstract class TestProjectInstance
 {
     /// <summary>
-    /// Gets the original test project.
+    /// Gets the test project this instance is based on.
     /// </summary>
     public abstract TestProject TestProject { get; }
 

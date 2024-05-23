@@ -16,23 +16,23 @@ public sealed class FileTestProject : TestProject
     public sealed class Instance : TestProjectInstance<FileTestProject>
     {
         /// <summary>
-        /// Gets the clone's physical location.
+        /// Gets the directory containing this instance.
         /// </summary>
-        public string Location { get; }
+        public string Directory { get; }
 
         private readonly Lazy<Project> _project;
 
         /// <inheritdoc />
         public override Project MSBuildProject => _project.Value;
 
-        internal Instance(FileTestProject project, string? location = null)
+        internal Instance(FileTestProject project, string? directory = null)
             : base(project)
         {
-            location ??= TestPaths.GetTempProjectDirectory();
-            Location = location;
-            _project = new(() => Project.FromFile(IOPath.Combine(Location, IOPath.GetRelativePath(TestProject.RootPath, TestProject.Path)), new()), true);
+            directory ??= TestPaths.GetTempProjectDirectory();
+            Directory = directory;
+            _project = new(() => Project.FromFile(IOPath.Combine(Directory, IOPath.GetRelativePath(TestProject.Directory, TestProject.Path)), new()), true);
 
-            if (!Directory.Exists(Location))
+            if (!System.IO.Directory.Exists(Directory))
             {
                 Clone();
             }
@@ -45,7 +45,7 @@ public sealed class FileTestProject : TestProject
         {
             try
             {
-                Directory.Delete(Location, true);
+                System.IO.Directory.Delete(Directory, true);
             }
             catch (DirectoryNotFoundException)
             {
@@ -59,15 +59,15 @@ public sealed class FileTestProject : TestProject
         {
             Delete();
 
-            string sourceDirectory = TestProject.RootPath;
+            string sourceDirectory = TestProject.Directory;
 
-            foreach (string file in Directory.GetFiles(sourceDirectory, "*", SearchOption.AllDirectories))
+            foreach (string file in System.IO.Directory.GetFiles(sourceDirectory, "*", SearchOption.AllDirectories))
             {
-                string destinationPath = IOPath.Combine(Location, IOPath.GetRelativePath(sourceDirectory, file));
+                string destinationPath = IOPath.Combine(Directory, IOPath.GetRelativePath(sourceDirectory, file));
                 string? destinationDirectory = IOPath.GetDirectoryName(destinationPath);
                 if (destinationDirectory is not null)
                 {
-                    _ = Directory.CreateDirectory(destinationDirectory);
+                    _ = System.IO.Directory.CreateDirectory(destinationDirectory);
                 }
                 File.Copy(file, destinationPath);
             }
@@ -75,20 +75,20 @@ public sealed class FileTestProject : TestProject
     }
 
     /// <summary>
-    /// Gets the path the project is located in.
+    /// Gets the directory containing this test project.
     /// </summary>
-    public string RootPath { get; private init; }
+    public string Directory { get; private init; }
 
     private readonly string _path;
 
     /// <summary>
-    /// Gets the path to the project file.
+    /// Gets the path to the MSBuild project file.
     /// </summary>
     public required string Path
     {
         get => _path;
 
-        [MemberNotNull(nameof(RootPath), nameof(_path), nameof(_name))]
+        [MemberNotNull(nameof(Directory), nameof(_path), nameof(_name))]
         init
         {
             ArgumentNullException.ThrowIfNull(value);
@@ -99,7 +99,7 @@ public sealed class FileTestProject : TestProject
             }
 
             _path = value;
-            RootPath = IOPath.GetDirectoryName(value) ?? throw new InvalidOperationException($"{value}'s parent directory is null.");
+            Directory = IOPath.GetDirectoryName(value) ?? throw new InvalidOperationException($"{value}'s parent directory is null.");
             _name = IOPath.GetFileName(Path);
         }
     }
@@ -122,8 +122,8 @@ public sealed class FileTestProject : TestProject
         return new(this);
     }
 
-    internal Instance CloneInto(string location)
+    internal Instance CloneInto(string directory)
     {
-        return new(this, location);
+        return new(this, directory);
     }
 }

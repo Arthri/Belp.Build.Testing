@@ -6,14 +6,14 @@
 public sealed class TestSample
 {
     /// <summary>
-    /// Gets the root path of the sample.
+    /// Gets the directory containing the sample.
     /// </summary>
-    public required string RootPath { get; init; }
+    public required string Directory { get; init; }
 
     private readonly FileTestProject[] _testProjects;
 
     /// <summary>
-    /// Gets a list of sample projects.
+    /// Gets a list of test projects located within the sample.
     /// </summary>
     public IReadOnlyList<FileTestProject> Projects => _testProjects.AsReadOnly();
 
@@ -33,7 +33,7 @@ public sealed class TestSample
     /// <param name="rootDirectory">The directory to read the sample from.</param>
     /// <returns>An object to interface with the project sample.</returns>
     /// <exception cref="InvalidOperationException">No *.*proj files were found.<br />-or-<br />Sample contained multiple projects with the same name as the <paramref name="rootDirectory"/>.</exception>
-    public static TestSample FromDirectory(string rootDirectory)
+    internal static TestSample FromDirectory(string rootDirectory)
     {
         FileTestProject[] projects = ReadTestProjectsFrom(rootDirectory);
         FileTestProject[]? nestedProjects = null;
@@ -42,13 +42,13 @@ public sealed class TestSample
         string samplesDirectoryName = Path.GetFileName(rootDirectory);
         FileTestProject? defaultProject = FindDefaultProject(samplesDirectoryName, projects);
         string directoryWithSameNameAsParent = Path.Combine(rootDirectory, samplesDirectoryName);
-        if (Directory.Exists(directoryWithSameNameAsParent))
+        if (System.IO.Directory.Exists(directoryWithSameNameAsParent))
         {
             nestedProjects = ReadTestProjectsFrom(directoryWithSameNameAsParent);
             defaultProject ??= FindDefaultProject(samplesDirectoryName, nestedProjects);
         }
         string srcPath = Path.Combine(rootDirectory, "src", samplesDirectoryName);
-        if (Directory.Exists(srcPath))
+        if (System.IO.Directory.Exists(srcPath))
         {
             srcProjects = ReadTestProjectsFrom(srcPath);
             defaultProject ??= FindDefaultProject(samplesDirectoryName, srcProjects);
@@ -84,7 +84,7 @@ public sealed class TestSample
             ? throw new NoTestProjectsException(rootDirectory)
             : new TestSample(combinedProjects)
             {
-                RootPath = rootDirectory,
+                Directory = rootDirectory,
                 // If at least one project is found, then default projects is guaranteed to be non-null
                 DefaultProject = defaultProject!,
             };
@@ -92,7 +92,7 @@ public sealed class TestSample
 
     private static FileTestProject[] ReadTestProjectsFrom(string path)
     {
-        string[] projectPaths = Directory.GetFiles(path, "*.*proj");
+        string[] projectPaths = System.IO.Directory.GetFiles(path, "*.*proj");
 
         var projects = new FileTestProject[projectPaths.Length];
         for (int i = 0; i < projectPaths.Length; i++)
@@ -123,7 +123,7 @@ public sealed class TestSample
     }
 
     /// <summary>
-    /// Clones this test sample instance for use.
+    /// Clones this sample instance for use.
     /// </summary>
     /// <returns>The cloned test sample.</returns>
     public TestSampleInstance Clone()
