@@ -6,6 +6,7 @@
 /// <param name="Start">The beginning of the portion.</param>
 /// <param name="End">The end of the portion.</param>
 public record struct TextSpan(TextSpan.Position Start, TextSpan.Position End)
+    : IComparable<TextSpan>
 {
     /// <summary>
     /// Represents a position in text.
@@ -13,7 +14,15 @@ public record struct TextSpan(TextSpan.Position Start, TextSpan.Position End)
     /// <param name="Line">The line at which the position begins.</param>
     /// <param name="Column">The column of the specified <paramref name="Line"/> at which the position begins.</param>
     public record struct Position(int Line, int Column)
+        : IComparable<Position>
     {
+        /// <inheritdoc />
+        public readonly int CompareTo(Position other)
+        {
+            int result = Line.CompareTo(other.Line);
+            return result is not 0 ? result : Column.CompareTo(other.Column);
+        }
+
         /// <summary>
         /// Defines and implicit conversion from an <see cref="int"/>-<see cref="int"/> tuple to a <see cref="Position"/>.
         /// </summary>
@@ -22,6 +31,13 @@ public record struct TextSpan(TextSpan.Position Start, TextSpan.Position End)
         {
             return new(tuple.Line, tuple.Column);
         }
+    }
+
+    /// <inheritdoc />
+    public readonly int CompareTo(TextSpan other)
+    {
+        int result = Start.CompareTo(other.Start);
+        return result is not 0 ? result : End.CompareTo(other.End);
     }
 
     /// <inheritdoc />
