@@ -1,0 +1,89 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Build Configuration -->
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+  </PropertyGroup>
+
+
+
+  <!-- Compiler Configuration -->
+  <PropertyGroup>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <ImplicitUsings>true</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+
+
+  <!-- Package Information -->
+  <PropertyGroup>
+    <Description>An internal package used by Belp.SDK.Testing.</Description>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/Arthri/Belp.Build.Testing/</PackageProjectUrl>
+    <PackageTags>msbuild</PackageTags>
+    <Product>Belp</Product>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <Title>Belp.Build.Testing</Title>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <CopyrightOwner Include="Arthri" Years="2023" />
+  </ItemGroup>
+
+
+
+  <!-- Dependencies -->
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Build" Version="17.6.3" ExcludeAssets="runtime" />
+    <PackageReference Include="Microsoft.Build.Locator" Version="1.5.5" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.1" />
+  </ItemGroup>
+
+
+
+  <!-- Development Dependencies -->
+  <ItemGroup>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Belp.Build.Packinf" Version="0.4.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+
+
+  <!-- Hide packed source files -->
+  <PropertyGroup>
+    <BeforePack>$(BeforePack);_GenerateHideSourceFiles</BeforePack>
+  </PropertyGroup>
+
+  <Target Name="_GenerateHideSourceFiles">
+    <PropertyGroup>
+      <_HideSourceFilePath>$(IntermediateOutputPath)HideSourceFiles.props</_HideSourceFilePath>
+      <_HideSourceFileContent>
+<![CDATA[<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <ItemGroup>
+    <!-- Hide package source files from project tree -->
+    <Compile Update="@%28Compile)">
+      <Visible Condition="'%%28Compile.NuGetPackageId)' == '$(PackageId)'">false</Visible>
+      <Link>$(PackageId)\%%28Filename)%%28Extension)</Link>
+    </Compile>
+  </ItemGroup>
+
+</Project>]]>
+      </_HideSourceFileContent>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <None Include="$(_HideSourceFilePath)" Pack="true" PackagePath="\build\" />
+    </ItemGroup>
+
+    <WriteLinesToFile File="$(_HideSourceFilePath)" Lines="$(_HideSourceFileContent)" Overwrite="true" WriteOnlyWhenDifferent="true" />
+  </Target>
+
+</Project>
