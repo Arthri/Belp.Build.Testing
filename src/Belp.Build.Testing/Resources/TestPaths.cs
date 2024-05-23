@@ -1,6 +1,4 @@
-﻿using System.IO;
-
-namespace Belp.Build.Testing.Resources;
+﻿namespace Belp.Build.Testing.Resources;
 
 /// <summary>
 /// Provides common paths used by <see cref="TestSamplesManager"/>.
@@ -15,7 +13,7 @@ public static class TestPaths
     /// <summary>
     /// Gets the directory which contains the test projects.
     /// </summary>
-    public static string TestSamples => File.ReadAllText("samples_path.txt");
+    public static string TestSamples => TrimOneNewLine(File.ReadAllText("samples_path.txt"));
 
     /// <summary>
     /// Gets the directory which contains the packages to be tested.
@@ -52,5 +50,20 @@ public static class TestPaths
     internal static string GetTempProjectDirectory()
     {
         return Path.Combine(ProjectCache, Guid.NewGuid().ToString("N"));
+    }
+
+    private static string TrimOneNewLine(string path)
+    {
+        if (path.EndsWith('\n'))
+        {
+            ReadOnlySpan<char> result = path.AsSpan(0..^1);
+
+            return result.EndsWith(['\r'])
+                ? result[0..^1].ToString()
+                : result.ToString()
+                ;
+        }
+
+        return path;
     }
 }
