@@ -18,7 +18,7 @@
 
   <!-- Package Information -->
   <PropertyGroup>
-    <Description>An internal package used by Belp.SDK.Testing.</Description>
+    <Description>A testing framework for MSBuild tools.</Description>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/Arthri/Belp.Build.Testing/</PackageProjectUrl>
     <PackageTags>msbuild</PackageTags>
