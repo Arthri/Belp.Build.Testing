@@ -54,7 +54,7 @@ internal static class _GlobalTestPackageReferences
 
   <!-- Configure Samples -->
   <ItemGroup>
-    <None Include="samples/**/*.*proj" />
+    <None Include="samples/**/*.*proj" Visible="true" />
   </ItemGroup>
 
   <Target Name="WriteSamplesPath" AfterTargets="Build">
