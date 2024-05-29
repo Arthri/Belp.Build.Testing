@@ -72,6 +72,24 @@ public abstract class TestProjectInstance
     }
 
     /// <summary>
+    /// Builds and packs the project instance.
+    /// </summary>
+    /// <inheritdoc cref="Build(string[], BuildRequestDataFlags?, HostServices?, Action{BuildParameters}?, Action{BuildRequestData}?, Action{ProjectInstance}?)" />
+    public MSBuildResult Pack(BuildRequestDataFlags? buildRequestDataFlags = null, HostServices? hostServices = null, Action<BuildParameters>? configureParameters = null, Action<BuildRequestData>? configureRequestData = null, Action<ProjectInstance>? configureProjectInstance = null)
+    {
+        return Build(["Build", "Pack"], buildRequestDataFlags, hostServices, configureParameters, configureRequestData, configureProjectInstance);
+    }
+
+    /// <summary>
+    /// Builds and publishes the project instance.
+    /// </summary>
+    /// <inheritdoc cref="Build(string[], BuildRequestDataFlags?, HostServices?, Action{BuildParameters}?, Action{BuildRequestData}?, Action{ProjectInstance}?)" />
+    public MSBuildResult Publish(BuildRequestDataFlags? buildRequestDataFlags = null, HostServices? hostServices = null, Action<BuildParameters>? configureParameters = null, Action<BuildRequestData>? configureRequestData = null, Action<ProjectInstance>? configureProjectInstance = null)
+    {
+        return Build(["Build", "Publish"], buildRequestDataFlags, hostServices, configureParameters, configureRequestData, configureProjectInstance);
+    }
+
+    /// <summary>
     /// Initializes a new instance of <see cref="TestProjectInstance"/>.
     /// </summary>
     public TestProjectInstance()
