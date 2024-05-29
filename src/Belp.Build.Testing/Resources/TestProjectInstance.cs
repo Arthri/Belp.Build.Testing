@@ -19,25 +19,43 @@ public abstract class TestProjectInstance
     /// </summary>
     public abstract Project MSBuildProject { get; }
 
+    private bool _restored;
+
+    /// <summary>
+    /// Restores the project instance.
+    /// </summary>
+    protected internal void Restore()
+    {
+        var buildParameters = new BuildParameters();
+        var buildRequestData = new BuildRequestData(MSBuildProject.CreateProjectInstance(), ["Restore"]);
+
+        _ = BuildManager.DefaultBuildManager.Build(buildParameters, buildRequestData);
+        _restored = true;
+    }
+
+    /// <inheritdoc cref="Build(string[], BuildRequestDataFlags?, HostServices?, Action{BuildParameters}?, Action{BuildRequestData}?, Action{ProjectInstance}?)" />
+    public MSBuildResult Build(BuildRequestDataFlags? buildRequestDataFlags = null, HostServices? hostServices = null, Action<BuildParameters>? configureParameters = null, Action<BuildRequestData>? configureRequestData = null, Action<ProjectInstance>? configureProjectInstance = null)
+    {
+        return Build(["Build"], buildRequestDataFlags, hostServices, configureParameters, configureRequestData, configureProjectInstance);
+    }
+
     /// <summary>
     /// Builds the project instance.
     /// </summary>
+    /// <param name="targets">The targets to build. <remarks>The restore target is implicitly included.</remarks></param>
     /// <param name="buildRequestDataFlags"><inheritdoc cref="BuildRequestData(ProjectInstance, string[], HostServices, BuildRequestDataFlags)" path="/param[@name='flags']" /></param>
     /// <param name="hostServices"><inheritdoc cref="BuildRequestData(ProjectInstance, string[], HostServices)" path="/param[@name='hostServices']" /></param>
     /// <param name="configureParameters">An optional action which configures the assembled <see cref="BuildParameters"/> before building.</param>
     /// <param name="configureRequestData">An optional action which configures the assembled <see cref="BuildRequestData"/> before building.</param>
     /// <param name="configureProjectInstance">An optional action which configures the project instance before building.</param>
     /// <returns>The build result.</returns>
-    public MSBuildResult Build(BuildRequestDataFlags? buildRequestDataFlags = null, HostServices? hostServices = null, Action<BuildParameters>? configureParameters = null, Action<BuildRequestData>? configureRequestData = null, Action<ProjectInstance>? configureProjectInstance = null)
+    public MSBuildResult Build(string[] targets, BuildRequestDataFlags? buildRequestDataFlags = null, HostServices? hostServices = null, Action<BuildParameters>? configureParameters = null, Action<BuildRequestData>? configureRequestData = null, Action<ProjectInstance>? configureProjectInstance = null)
     {
         var logger = new MSBuildDiagnosticLogger();
 
-        // Restore
+        if (!_restored)
         {
-            var buildParameters = new BuildParametersWithDefaults(logger);
-            var buildRequestData = new BuildRequestData(MSBuildProject.CreateProjectInstance(), ["Restore"]);
-
-            _ = BuildManager.DefaultBuildManager.Build(buildParameters, buildRequestData);
+            Restore();
         }
 
         // Build
@@ -47,7 +65,7 @@ public abstract class TestProjectInstance
             MSBuildProject.ReevaluateIfNecessary();
             ProjectInstance projectInstance = MSBuildProject.CreateProjectInstance();
             configureProjectInstance?.Invoke(projectInstance);
-            var buildRequestData = new BuildRequestData(projectInstance, ["Build"], hostServices, buildRequestDataFlags ?? BuildRequestDataFlags.None);
+            var buildRequestData = new BuildRequestData(projectInstance, targets, hostServices, buildRequestDataFlags ?? BuildRequestDataFlags.None);
             configureParameters?.Invoke(buildParameters);
             configureRequestData?.Invoke(buildRequestData);
 
