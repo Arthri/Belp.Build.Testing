@@ -58,20 +58,17 @@ public abstract class TestProjectInstance
             Restore();
         }
 
-        // Build
-        {
-            var buildParameters = new BuildParametersWithDefaults(logger);
-            MSBuildProject.MarkDirty();
-            MSBuildProject.ReevaluateIfNecessary();
-            ProjectInstance projectInstance = MSBuildProject.CreateProjectInstance();
-            configureProjectInstance?.Invoke(projectInstance);
-            var buildRequestData = new BuildRequestData(projectInstance, targets, hostServices, buildRequestDataFlags ?? BuildRequestDataFlags.None);
-            configureParameters?.Invoke(buildParameters);
-            configureRequestData?.Invoke(buildRequestData);
+        var buildParameters = new BuildParametersWithDefaults(logger);
+        MSBuildProject.MarkDirty();
+        MSBuildProject.ReevaluateIfNecessary();
+        ProjectInstance projectInstance = MSBuildProject.CreateProjectInstance();
+        configureProjectInstance?.Invoke(projectInstance);
+        var buildRequestData = new BuildRequestData(projectInstance, targets, hostServices, buildRequestDataFlags ?? BuildRequestDataFlags.None);
+        configureParameters?.Invoke(buildParameters);
+        configureRequestData?.Invoke(buildRequestData);
 
-            BuildResult buildResult = BuildManager.DefaultBuildManager.Build(buildParameters, buildRequestData);
-            return new MSBuildResult(logger, buildResult, buildResult.ProjectStateAfterBuild);
-        }
+        BuildResult buildResult = BuildManager.DefaultBuildManager.Build(buildParameters, buildRequestData);
+        return new MSBuildResult(logger, buildResult, buildResult.ProjectStateAfterBuild);
     }
 
     /// <summary>
