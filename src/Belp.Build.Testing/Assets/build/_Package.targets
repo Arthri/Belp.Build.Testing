@@ -9,10 +9,14 @@
   </Target>
 
   <ItemGroup>
-    <ProjectReference Include="@(TestProjectReference)" OutputItemType="_TestProjectReferenceOutput" ReferenceOutputAssembly="false" Targets="Pack;_GetOutputItemsFromPack" />
+    <ProjectReference Include="@(TestProjectReference)" ReferenceOutputAssembly="false" />
   </ItemGroup>
 
   <Target Name="_CopyTestProjectReferences" AfterTargets="ResolveProjectReferences" Condition="'@(TestProjectReference)' != ''">
+    <MSBuild BuildInParallel="true" Projects="@(TestProjectReference)" Targets="_GetOutputItemsFromPack">
+      <Output TaskParameter="TargetOutputs" ItemName="_TestProjectReferenceOutput" />
+    </MSBuild>
+
     <RemoveDir Directories="$(_TestPackagesDirectory)" />
     <MakeDir Directories="$(_TestPackagesDirectory)" />
     <Copy SourceFiles="@(_TestProjectReferenceOutput->WithMetadataValue('Extension', '.nupkg'))" DestinationFolder="$(_TestPackagesDirectory)" />
