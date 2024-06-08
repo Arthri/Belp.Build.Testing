@@ -13,7 +13,7 @@
   </ItemGroup>
 
   <Target Name="_CopyTestProjectReferences" AfterTargets="ResolveProjectReferences" Condition="'@(TestProjectReference)' != ''">
-    <MSBuild BuildInParallel="true" Projects="@(TestProjectReference)" Targets="_GetOutputItemsFromPack">
+    <MSBuild BuildInParallel="true" Projects="@(TestProjectReference)" Targets="_GetOutputItemsFromPack" RemoveProperties="Configuration">
       <Output TaskParameter="TargetOutputs" ItemName="_TestProjectReferenceOutput" />
     </MSBuild>
 
