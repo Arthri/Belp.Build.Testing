@@ -71,7 +71,7 @@
     <!-- Hide package source files from project tree -->
     <Compile Update="@%28Compile)">
       <Visible Condition="'%%28Compile.NuGetPackageId)' == '$(PackageId)'">false</Visible>
-      <Link>$(PackageId)\%%28Filename)%%28Extension)</Link>
+      <Link Condition="'%%28Compile.NuGetPackageId)' == '$(PackageId)'">$(PackageId)\%%28Filename)%%28Extension)</Link>
     </Compile>
   </ItemGroup>
 
