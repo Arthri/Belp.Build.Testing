@@ -50,6 +50,7 @@ internal static partial class TestSamplesManager
               <packageSources>
                 <clear />
                 <add key="Test Packages" value="{TestPaths.PackagesDirectory}" />
+                <add key="nuget.org" value="https://api.nuget.org/v3/index.json" protocolVersion="3" />
               </packageSources>
             </configuration>
             """
