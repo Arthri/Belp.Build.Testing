@@ -1,0 +1,6 @@
+<Solution>
+  <Configurations>
+    <BuildType Name="Release" />
+  </Configurations>
+  <Project Path="src/Belp.Build.Testing/Belp.Build.Testing.csproj" />
+</Solution>
