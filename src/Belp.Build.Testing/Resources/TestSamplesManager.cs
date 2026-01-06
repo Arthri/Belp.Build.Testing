@@ -45,6 +45,7 @@ internal static partial class TestSamplesManager
             <?xml version="1.0" encoding="utf-8"?>
             <configuration>
               <config>
+                <clear />
                 <add key="globalPackagesFolder" value="{TestPaths.PackagesCache}" />
               </config>
               <packageSources>

@@ -9,7 +9,7 @@
   </Target>
 
   <Target Name="_CollectTestProjectReferenceOutput" Condition="'@(TestProjectReference)' != ''">
-    <MSBuild BuildInParallel="true" Projects="@(TestProjectReference)" Targets="_GetOutputItemsFromPack" RemoveProperties="Configuration">
+    <MSBuild BuildInParallel="true" Projects="@(TestProjectReference)" Targets="_GetRestoreProjectStyle;_GetOutputItemsFromPack" RemoveProperties="Configuration">
       <Output TaskParameter="TargetOutputs" ItemName="_TestProjectReferenceOutput" />
     </MSBuild>
   </Target>
